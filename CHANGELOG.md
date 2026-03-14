@@ -3,6 +3,37 @@
 
 ---
 
+## [v0.8] — 2026-03-14 18:30 hs
+
+**Pedido:** Mejorar el join espacial, arreglar centros vecinales, crear notebooks de análisis para los alumnos, y subir todo.
+
+**Qué se hizo:**
+
+1. **Join espacial mejorado:** Descubierto que el CSV censal original tiene columnas X/Y con coordenadas para **560 barrios** (vs 91 centroides derivados de centros de salud en la versión anterior). Nuevo script `scripts/regenerar_dataset_v6.py` re-asigna TODAS las variables (escuelas, transporte, salud, luminarias, comisarías) usando KD-tree con 560 centroides. Nuevo archivo de referencia: `data/processed/centroides_barrios_completo.csv`.
+
+2. **Cobertura mejorada:**
+   - `escuelas_total`: de ~90 barrios → ~200+ barrios
+   - `escuelas_estatales`: de ~80 → ~150+
+   - `escuelas_privadas`: de ~58 → ~130+
+   - `centros_salud`, `paradas_colectivo`: similar mejora proporcional
+
+3. **Dataset final:** `data/processed/dataset_final_v6.csv` (15 columnas, 494 barrios). Retrocompatible con v5/v4.
+
+4. **3 Notebooks para DiploDatos:**
+   - `notebooks/01_exploracion.ipynb` — análisis exploratorio (distribución NBI, cobertura de servicios, correlaciones, scatter escuelas vs NBI)
+   - `notebooks/02_clustering.ipynb` — K-Means con método del codo + Silhouette, PCA, perfiles de cluster
+   - `notebooks/03_regresion.ipynb` — comparativa de modelos (LinearRegression, Ridge, RandomForest, GradientBoosting), importancia de variables, análisis de residuos
+
+5. **Tests actualizados:** `scripts/test_dataset.py` — **25/25 tests OK** (14 TestDatasetV6 + 3 TestCentroides + 5 TestEscuelasRaw + 3 TestEscuelasProcesadas)
+
+6. **Centros vecinales:** No se encontró fuente de datos alternativa (ni en WFS de IDECOR ni en portal municipal). La columna se mantiene en 0. Documentado como pendiente.
+
+7. **Censo 2022:** No hay datos a nivel barrio disponibles públicamente. Se mantienen datos del Censo 2010.
+
+**Archivo salida:** `data/processed/dataset_final_v6.csv`
+
+---
+
 ## [v0.7] — 2026-03-14 15:25 hs
 
 **Pedido:** Descargar los establecimientos educativos actualizados desde https://mapascordoba.gob.ar/viewer/mapa/77 usando QGIS u otro programa, integrarlos al dataset, actualizar los informes y README, correr tests y hacer commit.

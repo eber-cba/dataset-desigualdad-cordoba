@@ -33,10 +33,12 @@ import pandas as pd
 BASE_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 V4_PATH     = os.path.join(BASE_DIR, "data", "processed", "dataset_final_v4.csv")
 V5_PATH     = os.path.join(BASE_DIR, "data", "processed", "dataset_final_v5.csv")
+V6_PATH     = os.path.join(BASE_DIR, "data", "processed", "dataset_final_v6.csv")
 ESC_RAW     = os.path.join(BASE_DIR, "data", "raw",       "escuelas_cordoba.csv")
 ESC_PROC    = os.path.join(BASE_DIR, "data", "processed", "escuelas_idecor_limpio.csv")
+CENTR_PATH  = os.path.join(BASE_DIR, "data", "processed", "centroides_barrios_completo.csv")
 
-# Columnas obligatorias en v5
+# Columnas obligatorias en v6 (retrocompatible con v5)
 COLS_V4 = [
     "barrio", "poblacion", "hogares", "nbi", "pct_nbi",
     "escuelas_municipales", "centros_salud", "paradas_colectivo",
@@ -44,6 +46,13 @@ COLS_V4 = [
 ]
 COLS_NUEVAS = ["escuelas_total", "escuelas_estatales", "escuelas_privadas"]
 COLS_V5 = COLS_V4 + COLS_NUEVAS
+COLS_V6 = COLS_V5  # mismas columnas, mejores valores por cobertura
+
+# Umbrales de cobertura MEJORADOS gracias a los 560 centroides del CSV censal
+# v5 usaba 91 centroides → v6 usa 560 → cobertura mucho mayor
+MIN_BARRIOS_TOTAL    = 100   # v5 tenía ~90
+MIN_BARRIOS_ESTATALES = 80   # v5 tenía ~80
+MIN_BARRIOS_PRIVADAS  = 50   # v5 tenía ~58
 
 # Columnas numéricas que no deben ser negativas
 COLS_NUMERICAS = [
@@ -55,23 +64,25 @@ COLS_NUMERICAS = [
 
 
 class TestDatasetV5(unittest.TestCase):
-    """Tests sobre el dataset_final_v5.csv"""
+    """Tests sobre el dataset_final_v6.csv (v6 = versión actual)."""
 
     @classmethod
     def setUpClass(cls):
         """Carga los datasets una sola vez para todos los tests."""
-        if not os.path.exists(V5_PATH):
+        # Apunta a v6 (versión actual con 560 centroides)
+        path = V6_PATH if os.path.exists(V6_PATH) else V5_PATH
+        if not os.path.exists(path):
             raise FileNotFoundError(
-                f"No se encontró {V5_PATH}\n"
-                "Ejecutá primero: python scripts/integrar_escuelas_idecor.py"
+                f"No se encontró {V6_PATH}\n"
+                "Ejecutá primero: python scripts/regenerar_dataset_v6.py"
             )
-        cls.df   = pd.read_csv(V5_PATH)
+        cls.df    = pd.read_csv(path)
         cls.df_v4 = pd.read_csv(V4_PATH) if os.path.exists(V4_PATH) else None
 
     # ── 1. Estructura ─────────────────────────────────────────
     def test_01_columnas_presentes(self):
-        """Todas las columnas esperadas deben existir en v5."""
-        for col in COLS_V5:
+        """Todas las columnas esperadas deben existir en v6."""
+        for col in COLS_V6:
             self.assertIn(col, self.df.columns,
                           f"Falta la columna requerida: '{col}'")
 
@@ -123,15 +134,15 @@ class TestDatasetV5(unittest.TestCase):
 
     # ── 4. Cobertura de escuelas ──────────────────────────────
     def test_08_cobertura_escuelas_total(self):
-        """Al menos 50 barrios deben tener escuelas_total > 0 (mejora sobre v4)."""
+        """Al menos 100 barrios deben tener escuelas_total > 0 (v6 usa 560 centroides)."""
         n = (self.df["escuelas_total"] > 0).sum()
-        self.assertGreaterEqual(n, 50,
-                                f"Solo {n} barrios tienen escuelas_total > 0 (mínimo esperado: 50)")
+        self.assertGreaterEqual(n, MIN_BARRIOS_TOTAL,
+                                f"Solo {n} barrios tienen escuelas_total > 0 (mínimo esperado: {MIN_BARRIOS_TOTAL})")
 
     def test_09_cobertura_escuelas_estatales(self):
-        """Al menos 40 barrios deben tener escuelas_estatales > 0."""
+        """Al menos 80 barrios deben tener escuelas_estatales > 0."""
         n = (self.df["escuelas_estatales"] > 0).sum()
-        self.assertGreaterEqual(n, 40,
+        self.assertGreaterEqual(n, MIN_BARRIOS_ESTATALES,
                                 f"Solo {n} barrios tienen escuelas_estatales > 0")
 
     # ── 5. Consistencia entre columnas ────────────────────────
@@ -156,12 +167,12 @@ class TestDatasetV5(unittest.TestCase):
 
     # ── 6. Retrocompatibilidad con v4 ─────────────────────────
     def test_13_retrocompat_columnas_v4(self):
-        """Todas las columnas de v4 deben seguir presentes en v5."""
+        """Todas las columnas de v4 deben seguir presentes en v6."""
         if self.df_v4 is None:
             self.skipTest("dataset_final_v4.csv no encontrado, skip retrocompat")
         for col in self.df_v4.columns:
             self.assertIn(col, self.df.columns,
-                          f"Columna '{col}' de v4 perdida en v5")
+                          f"Columna '{col}' de v4 perdida en v6")
 
     def test_14_retrocompat_escuelas_municipales(self):
         """escuelas_municipales debe tener exactamente los mismos valores que en v4."""
@@ -169,13 +180,41 @@ class TestDatasetV5(unittest.TestCase):
             self.skipTest("dataset_final_v4.csv no encontrado")
         merged = self.df[["barrio", "escuelas_municipales"]].merge(
             self.df_v4[["barrio", "escuelas_municipales"]],
-            on="barrio", suffixes=("_v5", "_v4")
+            on="barrio", suffixes=("_v6", "_v4")
         )
         diferencias = merged[
-            merged["escuelas_municipales_v5"] != merged["escuelas_municipales_v4"]
+            merged["escuelas_municipales_v6"] != merged["escuelas_municipales_v4"]
         ]
         self.assertEqual(len(diferencias), 0,
                          f"{len(diferencias)} barrios cambiaron escuelas_municipales:\n{diferencias}")
+
+
+class TestCentroides(unittest.TestCase):
+    """Tests sobre el archivo de centroides de barrios."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(CENTR_PATH):
+            raise FileNotFoundError(f"No se encontró {CENTR_PATH}")
+        cls.df = pd.read_csv(CENTR_PATH)
+
+    def test_01_columnas(self):
+        """El archivo debe tener barrio, centroide_lat y centroide_lon."""
+        for col in ["barrio", "centroide_lat", "centroide_lon"]:
+            self.assertIn(col, self.df.columns)
+
+    def test_02_cantidad(self):
+        """Debe haber al menos 400 centroides (supera los 91 anteriores)."""
+        self.assertGreaterEqual(len(self.df), 400,
+                                f"Solo {len(self.df)} centroides (mínimo: 400)")
+
+    def test_03_coords_validas(self):
+        """Las coordenadas deben estar en el rango de Córdoba."""
+        lat_ok = self.df["centroide_lat"].between(-32.0, -31.0)
+        lon_ok = self.df["centroide_lon"].between(-65.0, -64.0)
+        n_inv  = (~lat_ok | ~lon_ok).sum()
+        self.assertLessEqual(n_inv, len(self.df) * 0.05,  # <= 5% fuera del bbox
+                             f"{n_inv} centroides fuera del bbox de Córdoba")
 
 
 class TestEscuelasRaw(unittest.TestCase):
@@ -260,14 +299,14 @@ class TestEscuelasProcesadas(unittest.TestCase):
 # Ejecución directa (sin pytest)
 # ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Cambiar al directorio raíz del proyecto para que las rutas funcionen
     os.chdir(BASE_DIR)
-    print("=" * 60)
-    print("TESTS — Dataset Desigualdad Urbana Córdoba")
-    print("=" * 60)
+    print("=" * 65)
+    print("TESTS — Dataset Desigualdad Urbana Córdoba v6")
+    print("=" * 65)
     loader  = unittest.TestLoader()
     suites  = [
         loader.loadTestsFromTestCase(TestDatasetV5),
+        loader.loadTestsFromTestCase(TestCentroides),
         loader.loadTestsFromTestCase(TestEscuelasRaw),
         loader.loadTestsFromTestCase(TestEscuelasProcesadas),
     ]

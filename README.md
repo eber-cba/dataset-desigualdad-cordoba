@@ -33,7 +33,7 @@ dataset_cordoba/
 
 ## 📊 Dataset principal
 
-**Archivo:** `data/processed/dataset_final_v5.csv` *(versión actual)*
+**Archivo:** `data/processed/dataset_final_v6.csv` *(versión actual)*
 **Registros:** 494 barrios de la ciudad de Córdoba
 
 | Columna | Tipo | Descripción |
@@ -43,9 +43,9 @@ dataset_cordoba/
 | `hogares` | número | Cantidad de hogares en el barrio |
 | `nbi` | número | Hogares con Necesidades Básicas Insatisfechas |
 | `pct_nbi` | decimal | % hogares con NBI = `(nbi/hogares)*100` |
-| `escuelas_total` | entero | **NUEVO** — Total de establecimientos educativos asignados al barrio (todos los niveles, estatal + privado). Fuente: IDECOR WFS 2026 |
-| `escuelas_estatales` | entero | **NUEVO** — Solo establecimientos del sector estatal (públicos) |
-| `escuelas_privadas` | entero | **NUEVO** — Solo establecimientos del sector privado |
+| `escuelas_total` | entero | Total de establecimientos educativos asignados al barrio (todos los niveles, estatal + privado). Fuente: IDECOR WFS 2026. **Mejorado en v6 con 560 centroides** |
+| `escuelas_estatales` | entero | Solo establecimientos del sector estatal (públicos) |
+| `escuelas_privadas` | entero | Solo establecimientos del sector privado |
 | `escuelas_municipales` | entero | Escuelas primarias municipales históricas (38 establecimientos, fuente original) |
 | `centros_salud` | entero | Centros de salud y hospitales municipales |
 | `paradas_colectivo` | entero | Paradas de transporte urbano (GTFS 2023) |
@@ -88,8 +88,11 @@ python scripts/integrador_dataset.py
 # 5. Descargar establecimientos educativos IDECOR vía WFS
 python scripts/descargar_escuelas_wfs.py
 
-# 6. Integrar establecimientos IDECOR → v5  ← VERSIÓN ACTUAL
+# 6. Integrar establecimientos IDECOR → v5
 python scripts/integrar_escuelas_idecor.py
+
+# 7. Re-integrar TODO con 560 centroides del censal → v6  ← VERSIÓN ACTUAL
+python scripts/regenerar_dataset_v6.py
 ```
 
 ---
@@ -97,14 +100,24 @@ python scripts/integrar_escuelas_idecor.py
 ## 🧪 Tests automáticos
 
 ```bash
-# Correr suite completa (22 validaciones)
+# Correr suite completa (25 validaciones)
 python scripts/test_dataset.py
 
 # Con pytest para output detallado
 python -m pytest scripts/test_dataset.py -v
 ```
 
-Los tests validan: columnas requeridas, tipos, rango de `pct_nbi`, cobertura de escuelas, consistencia entre columnas, sin valores negativos y retrocompatibilidad con v4.
+Los tests validan: columnas requeridas, tipos, rango de `pct_nbi`, cobertura de escuelas (≥100 barrios), consistencia entre columnas, sin valores negativos, retrocompatibilidad con v4 y validación de centroides.
+
+---
+
+## 📓 Notebooks de análisis
+
+| Notebook | Contenido |
+|----------|----------|
+| `notebooks/01_exploracion.ipynb` | Análisis exploratorio: distribución NBI, cobertura por servicio, correlaciones, scatter escuelas vs pobreza |
+| `notebooks/02_clustering.ipynb` | K-Means con método del codo, Silhouette, PCA 2D, perfiles de cluster |
+| `notebooks/03_regresion.ipynb` | Modelos predictivos de NBI (Linear, Ridge, Random Forest, Gradient Boosting), importancia de variables |
 
 ---
 
