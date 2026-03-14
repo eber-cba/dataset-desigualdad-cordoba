@@ -1,140 +1,148 @@
-# 🏙️ Dataset: Desigualdad Urbana en Barrios de Córdoba
-### Proyecto de Mentoría — DiploDatos 2026 (FAMAF / UNC)
+# 🏙️ Desigualdad Urbana en Barrios de Córdoba
+
+**Dataset integrado de indicadores socioeconómicos y de acceso a servicios públicos para los 494 barrios de la ciudad de Córdoba, Argentina.**
+
+Proyecto de mentoría — [DiploDatos 2026](https://diplodatos.famaf.unc.edu.ar/) — FAMAF, Universidad Nacional de Córdoba.
 
 ---
 
-## ¿De qué trata este proyecto?
+## 📊 Dataset Principal
 
-Este repositorio contiene el dataset y los scripts para construir un conjunto de datos sobre **desigualdad urbana** en los barrios de la ciudad de Córdoba, Argentina.
+**Archivo:** [`data/processed/dataset_final_v6.csv`](data/processed/dataset_final_v6.csv)
+**Registros:** 494 barrios | **Columnas:** 15
 
-El objetivo es que estudiantes de la Diplomatura en Ciencia de Datos puedan:
-- Explorar patrones de desigualdad entre barrios
-- Construir indicadores de vulnerabilidad urbana
-- Aplicar clustering (aprendizaje no supervisado)
-- Construir modelos predictivos sobre acceso a servicios
+| Variable | Tipo | Descripción | Fuente |
+|----------|------|-------------|--------|
+| `barrio` | texto | Nombre oficial del barrio | [Datos Abiertos Municipalidad](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/territorio/barrios/33) |
+| `poblacion` | entero | Población total del barrio | [Censo Nacional 2010 — INDEC](https://www.indec.gob.ar/indec/web/Nivel4-Tema-2-41-135) |
+| `hogares` | entero | Cantidad de hogares | Censo 2010 |
+| `nbi` | entero | Hogares con Necesidades Básicas Insatisfechas | Censo 2010 |
+| `pct_nbi` | decimal | % hogares con NBI = `(nbi/hogares)*100` | Calculado |
+| `escuelas_municipales` | entero | Escuelas primarias municipales (38 establ.) | [Datos Abiertos Municipalidad — Escuelas](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/educacion/escuelas-municipales/6) |
+| `escuelas_total` | entero | Total establecimientos educativos (todos los niveles) | [IDECOR WFS — Establecimientos Educativos](https://idecor-ws.mapascordoba.gob.ar/geoserver/wfs) |
+| `escuelas_estatales` | entero | Establecimientos del sector estatal | IDECOR WFS |
+| `escuelas_privadas` | entero | Establecimientos del sector privado | IDECOR WFS |
+| `centros_salud` | entero | Centros de salud y hospitales municipales | [Datos Abiertos Municipalidad — Salud](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/salud) |
+| `paradas_colectivo` | entero | Paradas de transporte urbano | [GTFS Córdoba 2023 — Tamse/Municipalidad](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte) |
+| `lineas_colectivo` | entero | Líneas de colectivo distintas que pasan | GTFS Córdoba 2023 |
+| `luminarias_reportes` | entero | Reportes de luminarias LED instaladas | [Datos Abiertos Municipalidad — Luminarias](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/servicios-publicos) |
+| `comisarias` | entero | Comisarías de policía | [Datos Abiertos Municipalidad — Seguridad](https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/seguridad) |
+| `centros_vecinales` | entero | Centros vecinales y comisiones de vecinos | [Mapa Interactivo Córdoba — Centros Vecinales](https://mapascordoba.gob.ar/) |
+
+### Asignación espacial
+
+Cada servicio se asignó al barrio más cercano usando **KD-tree** con **560 centroides** extraídos del CSV censal original (columnas X/Y por barrio), complementados con centroides de centros de salud.
 
 ---
 
-## 📂 Estructura del repositorio
+## 📁 Estructura del Proyecto
 
 ```
 dataset_cordoba/
+├── README.md                    # Este archivo
+├── CHANGELOG.md                 # Historial detallado de cambios
+├── requirements.txt             # Dependencias Python
+├── .gitignore
+│
 ├── data/
-│   ├── raw/           → Archivos originales descargados tal cual de las fuentes
-│   └── processed/     → Archivos procesados y listos para usar
-├── scripts/           → Scripts Python para procesar los datos
-├── README.md          → Este archivo
-├── CHANGELOG.md       → Historial de cambios con fecha/hora/pedido/decisión
-├── SCRIPTS_GUIA.md    → Guía detallada de qué hace cada script y por qué
-└── GUIA_PROYECTO.md   → Guía de estado del proyecto, variables y pendientes
+│   ├── raw/                     # Datos crudos (sin modificar)
+│   │   ├── Barrios_de_Córdoba_con_información_censal_afkGL16.csv
+│   │   ├── centros_salud_cordoba.csv
+│   │   ├── centros_vecinales.csv
+│   │   ├── comisarias_2023.csv
+│   │   ├── escuelas_cordoba.csv
+│   │   ├── escuelas_cordoba_wfs.geojson
+│   │   ├── gtfs_cordoba.zip
+│   │   ├── luminarias_led.csv
+│   │   └── ZONAS_ESCUELAS_MUNICIPALES_Corregido_2.csv
+│   │
+│   └── processed/               # Datos procesados
+│       ├── dataset_final_v6.csv          ← DATASET PRINCIPAL
+│       ├── centroides_barrios_completo.csv
+│       ├── barrios_cordoba_censal_limpio.csv
+│       ├── centros_salud_limpio.csv
+│       ├── centros_vecinales_limpio.csv
+│       ├── escuelas_idecor_limpio.csv
+│       └── paradas_colectivo_limpio.csv
+│
+├── scripts/                     # Scripts de procesamiento
+│   ├── clean_dataset.py         # Limpieza del censal crudo → v1
+│   ├── mejorar_escuelas.py      # Normalización de escuelas municipales
+│   ├── procesar_salud.py        # Procesamiento centros de salud → v2
+│   ├── integrador_dataset.py    # Integración GTFS/luminarias/comisarías → v4
+│   ├── descargar_escuelas_wfs.py  # Descarga WFS IDECOR
+│   ├── integrar_escuelas_idecor.py # Integración escuelas IDECOR → v5
+│   ├── regenerar_dataset_v6.py  # Re-integración con 560 centroides → v6
+│   ├── test_dataset.py          # Suite de 25 tests
+│   └── archivo/                 # Scripts históricos (no usar)
+│
+└── notebooks/                   # Análisis para DiploDatos
+    ├── 01_exploracion.ipynb      # EDA: distribución NBI, cobertura, correlaciones
+    ├── 02_clustering.ipynb       # K-Means, PCA, perfiles de barrio
+    └── 03_regresion.ipynb        # Modelos predictivos de NBI
 ```
 
 ---
 
-## 📊 Dataset principal
-
-**Archivo:** `data/processed/dataset_final_v6.csv` *(versión actual)*
-**Registros:** 494 barrios de la ciudad de Córdoba
-
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| `barrio` | texto | Nombre del barrio oficial de Córdoba |
-| `poblacion` | número | Personas residentes (Censo Nacional 2010) |
-| `hogares` | número | Cantidad de hogares en el barrio |
-| `nbi` | número | Hogares con Necesidades Básicas Insatisfechas |
-| `pct_nbi` | decimal | % hogares con NBI = `(nbi/hogares)*100` |
-| `escuelas_total` | entero | Total de establecimientos educativos asignados al barrio (todos los niveles, estatal + privado). Fuente: IDECOR WFS 2026. **Mejorado en v6 con 560 centroides** |
-| `escuelas_estatales` | entero | Solo establecimientos del sector estatal (públicos) |
-| `escuelas_privadas` | entero | Solo establecimientos del sector privado |
-| `escuelas_municipales` | entero | Escuelas primarias municipales históricas (38 establecimientos, fuente original) |
-| `centros_salud` | entero | Centros de salud y hospitales municipales |
-| `paradas_colectivo` | entero | Paradas de transporte urbano (GTFS 2023) |
-| `lineas_colectivo` | entero | Líneas de colectivo distintas por barrio |
-| `luminarias_reportes` | entero | Reportes de luminarias LED (proxy de cobertura eléctrica) |
-| `comisarias` | entero | Comisarías, subcomisarías y unidades judiciales |
-| `centros_vecinales` | entero | Centros vecinales (pendiente de mejorar) |
-
----
-
-## 🔍 Fuentes de datos
-
-| Dataset | Fuente | Detalle |
-|---------|--------|---------|
-| Barrios con datos censales | Portal Datos Abiertos Córdoba | Censo 2010, nivel barrio |
-| Escuelas municipales | Portal Datos Abiertos Córdoba | 38 escuelas primarias municipales |
-| **Establecimientos educativos** | **IDECOR — MapasCórdoba WFS** | **5,471 establecimientos. Endpoint: `idecor-ws.mapascordoba.gob.ar`. Mapa: https://mapascordoba.gob.ar/viewer/mapa/77** |
-| Centros de salud | Portal Datos Abiertos Córdoba | Centros de salud y hospitales municipales |
-| Transporte urbano | GTFS Córdoba 2023 | Paradas y líneas de colectivo |
-| Luminarias LED | Datos abiertos municipales | Reportes de luminarias en la ciudad |
-| Comisarías 2023 | Datos abiertos provinciales | Comisarías, subcomisarías, UJ |
-
----
-
-## ⚙️ Cómo reproducir el dataset
+## 🔄 Reproducir el Dataset
 
 ```bash
-# 1. Limpiar dataset censal
-python scripts/clean_dataset.py
+# Instalar dependencias
+pip install -r requirements.txt
 
-# 2. Procesar escuelas municipales históricas → v2
-python scripts/mejorar_escuelas.py
-
-# 3. Agregar centros de salud → v3
-python scripts/procesar_salud.py
-
-# 4. Agregar transporte, luminarias, comisarías → v4
-python scripts/integrador_dataset.py
-
-# 5. Descargar establecimientos educativos IDECOR vía WFS
-python scripts/descargar_escuelas_wfs.py
-
-# 6. Integrar establecimientos IDECOR → v5
-python scripts/integrar_escuelas_idecor.py
-
-# 7. Re-integrar TODO con 560 centroides del censal → v6  ← VERSIÓN ACTUAL
-python scripts/regenerar_dataset_v6.py
+# Pipeline completo (ejecutar en orden)
+python scripts/clean_dataset.py              # 1. Limpiar censal → v1
+python scripts/mejorar_escuelas.py           # 2. Normalizar escuelas municipales
+python scripts/procesar_salud.py             # 3. Procesar centros de salud → v2
+python scripts/integrador_dataset.py         # 4. GTFS + luminarias + comisarías → v4
+python scripts/descargar_escuelas_wfs.py     # 5. Descargar escuelas IDECOR (WFS)
+python scripts/integrar_escuelas_idecor.py   # 6. Integrar escuelas IDECOR → v5
+python scripts/regenerar_dataset_v6.py       # 7. Re-integrar todo con 560 centroides → v6
 ```
 
 ---
 
-## 🧪 Tests automáticos
+## 🧪 Tests
 
 ```bash
-# Correr suite completa (25 validaciones)
-python scripts/test_dataset.py
-
-# Con pytest para output detallado
-python -m pytest scripts/test_dataset.py -v
+python scripts/test_dataset.py               # 25 validaciones
+python -m pytest scripts/test_dataset.py -v   # Con output detallado
 ```
 
-Los tests validan: columnas requeridas, tipos, rango de `pct_nbi`, cobertura de escuelas (≥100 barrios), consistencia entre columnas, sin valores negativos, retrocompatibilidad con v4 y validación de centroides.
+Valida: columnas, tipos, rangos, cobertura (≥100 barrios con escuelas), consistencia, centroides, retrocompatibilidad.
 
 ---
 
-## 📓 Notebooks de análisis
+## 📓 Notebooks
 
-| Notebook | Contenido |
+| Notebook | Qué hace |
 |----------|----------|
-| `notebooks/01_exploracion.ipynb` | Análisis exploratorio: distribución NBI, cobertura por servicio, correlaciones, scatter escuelas vs pobreza |
-| `notebooks/02_clustering.ipynb` | K-Means con método del codo, Silhouette, PCA 2D, perfiles de cluster |
-| `notebooks/03_regresion.ipynb` | Modelos predictivos de NBI (Linear, Ridge, Random Forest, Gradient Boosting), importancia de variables |
+| [`01_exploracion.ipynb`](notebooks/01_exploracion.ipynb) | Distribución NBI, cobertura de servicios, correlaciones, scatter escuelas vs pobreza |
+| [`02_clustering.ipynb`](notebooks/02_clustering.ipynb) | K-Means con método del codo, Silhouette, PCA 2D, perfiles de cluster |
+| [`03_regresion.ipynb`](notebooks/03_regresion.ipynb) | Comparativa de 4 modelos (Linear, Ridge, RF, GBR), importancia de variables |
 
 ---
 
-## 📝 Preguntas de investigación (para los alumnos)
+## 📋 Fuentes de Datos
 
-1. ¿Qué barrios presentan mayor vulnerabilidad social según NBI?
-2. ¿Existe relación entre el nivel de NBI y el acceso a escuelas o centros de salud?
-3. ¿Se pueden agrupar barrios con características similares? *(clustering)*
-4. ¿Qué variables predicen mejor el nivel de NBI de un barrio?
-5. ¿Hay diferencias en el acceso a establecimientos **públicos vs privados** entre barrios de distinto nivel socioeconómico?
-
----
-
-## ✍️ Mentor
-
-**Eber Coronel** — Docente Full Stack con +5 años de experiencia acompañando más de 500 estudiantes en proyectos de tecnología y datos.
+| Dataset | Fuente | URL |
+|---------|--------|-----|
+| Barrios + Censo 2010 | Datos Abiertos Municipalidad de Córdoba | [gobiernoabierto.cordoba.gob.ar](https://gobiernoabierto.cordoba.gob.ar/) |
+| Escuelas (5,471 establ.) | IDECOR — Infraestructura de Datos Espaciales de Córdoba | [mapascordoba.gob.ar](https://mapascordoba.gob.ar/viewer/mapa/77) |
+| Centros de salud | Datos Abiertos Municipalidad | [gobiernoabierto.cordoba.gob.ar](https://gobiernoabierto.cordoba.gob.ar/) |
+| Transporte (GTFS) | Tamse / Municipalidad de Córdoba | [gobiernoabierto.cordoba.gob.ar](https://gobiernoabierto.cordoba.gob.ar/) |
+| Luminarias LED | Datos Abiertos Municipalidad | [gobiernoabierto.cordoba.gob.ar](https://gobiernoabierto.cordoba.gob.ar/) |
+| Comisarías | Datos Abiertos Municipalidad | [gobiernoabierto.cordoba.gob.ar](https://gobiernoabierto.cordoba.gob.ar/) |
+| Centros vecinales (376) | Mapa Interactivo de Córdoba (KMZ) | [mapascordoba.gob.ar](https://mapascordoba.gob.ar/) |
 
 ---
 
-*Mentoría presentada para DiploDatos 2026 — FAMAF, Universidad Nacional de Córdoba*
+## 👤 Autor
+
+**Eber Coronel** — Mentor DiploDatos 2026 — FAMAF/UNC
+
+---
+
+## 📄 Licencia
+
+Datos públicos del Gobierno de la Ciudad de Córdoba e IDECOR. Uso académico.

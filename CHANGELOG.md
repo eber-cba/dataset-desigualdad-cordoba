@@ -3,6 +3,20 @@
 
 ---
 
+## [v0.9] — 2026-03-14 18:48 hs
+
+**Integración de centros vecinales + limpieza integral del proyecto.**
+
+1. **Centros vecinales integrados:** 376 centros vecinales y comisiones de vecinos (fuente: KMZ del Mapa Interactivo de Córdoba). Asignados a 304 barrios por KD-tree. La columna `centros_vecinales` pasó de 0 → dato real.
+2. **Limpieza de scripts:** 6 scripts obsoletos movidos a `scripts/archivo/`. Solo quedan los 8 relevantes.
+3. **Limpieza de datos:** Eliminadas versiones intermedias (v2, v3, v4, v5) y archivos procesados obsoletos. Solo se mantiene `dataset_final_v6.csv` como versión única.
+4. **Limpieza de raíz:** Eliminados `salida_analisis.txt`, `salida_mejorar_escuelas.txt`, `SCRIPTS_GUIA.md`, `GUIA_PROYECTO.md`, `tmp/`. Info relevante fusionada en README.
+5. **Limpieza de raw:** Eliminados KML y CSV duplicados no usados por ningún script.
+6. **README reescrito:** Versión profesional con tabla de variables + enlaces a las fuentes, estructura de carpetas, instrucciones de reproducción, tabla de fuentes de datos.
+7. **Nuevos archivos:** `requirements.txt`, `.gitignore` actualizado.
+
+---
+
 ## [v0.8] — 2026-03-14 18:30 hs
 
 **Pedido:** Mejorar el join espacial, arreglar centros vecinales, crear notebooks de análisis para los alumnos, y subir todo.

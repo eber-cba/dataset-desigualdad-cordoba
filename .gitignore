@@ -1,19 +1,27 @@
-# Archivos que Git NO debe rastrear
+# Python
 __pycache__/
-*.py[cod]
 *.pyc
-.env
-*.egg-info/
+*.pyo
+.pytest_cache/
 
-# Archivos temporales
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporales
+tmp/
 *.tmp
 *.log
-salida_*.txt
 
-# Herramientas del sistema
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Archivos grandes que no son necesarios versionar
-# (los datos raw se pueden regenerar desde las fuentes originales)
-# data/raw/*.zip
+# IDE
+.vscode/
+.idea/
