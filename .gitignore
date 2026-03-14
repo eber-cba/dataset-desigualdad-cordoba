@@ -1,0 +1,19 @@
+# Archivos que Git NO debe rastrear
+__pycache__/
+*.py[cod]
+*.pyc
+.env
+*.egg-info/
+
+# Archivos temporales
+*.tmp
+*.log
+salida_*.txt
+
+# Herramientas del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos grandes que no son necesarios versionar
+# (los datos raw se pueden regenerar desde las fuentes originales)
+# data/raw/*.zip
