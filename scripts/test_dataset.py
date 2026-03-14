@@ -98,9 +98,8 @@ class TestDatasetV5(unittest.TestCase):
 
     # ── 2. Filas y unicidad ───────────────────────────────────
     def test_03_cantidad_barrios(self):
-        """El dataset debe tener exactamente 494 barrios (igual que v4)."""
-        self.assertEqual(len(self.df), 494,
-                         f"Se esperaban 494 barrios, hay {len(self.df)}")
+        """Verificar que haya exactamente 495 barrios (cobertura total ciudad)"""
+        self.assertEqual(len(self.df), 495, f"Se esperaban 495 barrios, hay {len(self.df)}")
 
     def test_04_barrios_sin_duplicados(self):
         """No debe haber barrios duplicados."""

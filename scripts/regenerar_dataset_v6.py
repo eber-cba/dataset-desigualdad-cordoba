@@ -72,13 +72,15 @@ def conteo_por_barrio(df, col_nombre):
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
+import os
+
 print("=" * 65)
 print("SCRIPT: regenerar_dataset_v6.py")
-print("Objetivo: mejorar join espacial usando 560 centroides del censal")
+print("Objetivo: integrar TODOS los datasets con 560 centroides del censal")
 print("=" * 65)
 
 # ── 1. Cargar CSV censal original (tiene X, Y por barrio) ────
-print("\n[1/8] Extrayendo centroides del CSV censal original...")
+print("\n[1/9] Extrayendo centroides del CSV censal original...")
 censal_raw = pd.read_csv(
     "data/raw/Barrios_de_Córdoba_con_información_censal_afkGL16.csv",
     encoding="latin-1", on_bad_lines="skip"
@@ -130,8 +132,8 @@ centroides.to_csv("data/processed/centroides_barrios_completo.csv", index=False)
 print(f"      → Guardado: data/processed/centroides_barrios_completo.csv")
 
 # ── 2. Cargar base v2 (censal + escuelas municipales + pct_nbi) ──
-print("\n[2/8] Cargando base censal (v2)...")
-base = pd.read_csv("data/processed/dataset_final_v2.csv")
+print("\n[2/9] Cargando base censal...")
+base = pd.read_csv("data/processed/barrios_cordoba_censal_limpio.csv")
 # Normalizar columna barrio para los joins
 base["barrio_norm"] = base["barrio"].apply(normalizar)
 barrios_set = set(base["barrio_norm"])
@@ -150,7 +152,7 @@ def asignar_centroide_norm(df, lat_col, lon_col):
     return result
 
 # ── 3. CENTROS DE SALUD ──────────────────────────────────────
-print("\n[3/8] Re-asignando centros de salud...")
+print("\n[3/9] Re-asignando centros de salud...")
 cs_limpio = pd.read_csv("data/processed/centros_salud_limpio.csv")
 cs_limpio["barrio_asignado"] = asignar_centroide_norm(cs_limpio, "latitud", "longitud")
 cs_por_barrio = conteo_por_barrio(cs_limpio, "centros_salud")
@@ -159,7 +161,7 @@ n_cs = len(cs_por_barrio)
 print(f"      Barrios con centros de salud: {n_cs}")
 
 # ── 4. GTFS — PARADAS Y LINEAS ───────────────────────────────
-print("\n[4/8] Re-asignando transporte GTFS...")
+print("\n[4/9] Re-asignando transporte GTFS...")
 with zipfile.ZipFile("data/raw/gtfs_cordoba.zip") as z:
     with z.open("stops.txt") as f:
         stops = pd.read_csv(f)
@@ -192,7 +194,7 @@ stops_export = stops[stops["barrio_asignado"] != ""][
 stops_export.to_csv("data/processed/paradas_colectivo_limpio.csv", index=False)
 
 # ── 5. LUMINARIAS ────────────────────────────────────────────
-print("\n[5/8] Re-asignando luminarias...")
+print("\n[5/9] Re-asignando luminarias...")
 lum = pd.read_csv("data/raw/luminarias_led.csv", encoding="latin1",
                   on_bad_lines="skip", low_memory=False)
 barrio_col = next((c for c in lum.columns if "barrio" in c.lower() and "1" not in c), None)
@@ -206,7 +208,7 @@ else:
     print("      AVISO: columna Barrio no encontrada")
 
 # ── 6. COMISARIAS ────────────────────────────────────────────
-print("\n[6/8] Re-asignando comisarías...")
+print("\n[6/9] Re-asignando comisarías...")
 com = pd.read_csv("data/raw/comisarias_2023.csv", encoding="latin1", on_bad_lines="skip")
 com_por_barrio = pd.DataFrame(columns=["barrio", "comisarias"])
 
@@ -234,7 +236,7 @@ else:
         print(f"      Barrios con comisarías: {len(com_por_barrio)}")
 
 # ── 7. ESCUELAS IDECOR ───────────────────────────────────────
-print("\n[7/8] Re-asignando establecimientos educativos IDECOR...")
+print("\n[7/9] Re-asignando establecimientos educativos IDECOR...")
 esc = pd.read_csv("data/raw/escuelas_cordoba.csv")
 esc["lat"] = pd.to_numeric(esc["lat"], errors="coerce")
 esc["lon"] = pd.to_numeric(esc["lon"], errors="coerce")
@@ -270,9 +272,63 @@ print(f"      Barrios con escuelas (total)    : {len(total_por_barrio)}")
 print(f"      Barrios con escuelas estatales  : {len(estatal_por_barrio)}")
 print(f"      Barrios con escuelas privadas   : {len(privado_por_barrio)}")
 
-# ── 8. UNIR TODO ─────────────────────────────────────────────
-print("\n[8/8] Uniendo todos los datasets en v6...")
+# ── 8. CENTROS VECINALES ──────────────────────────────────
+print("\n[8/9] Re-asignando centros vecinales...")
+cv_path = "data/raw/centros_vecinales.csv"
+cv_por_barrio = pd.DataFrame(columns=["barrio", "centros_vecinales"])
+if os.path.exists(cv_path):
+    cv = pd.read_csv(cv_path, low_memory=False)
+    cv["centroid_lat"] = pd.to_numeric(cv["centroid_lat"], errors="coerce")
+    cv["centroid_lon"] = pd.to_numeric(cv["centroid_lon"], errors="coerce")
+    cv = cv.dropna(subset=["centroid_lat", "centroid_lon"])
+    cv_ciudad = cv[
+        cv["centroid_lat"].between(*BBOX_LAT) &
+        cv["centroid_lon"].between(*BBOX_LON)
+    ].copy()
+    cv_ciudad["barrio_asignado"] = asignar_centroide_norm(cv_ciudad, "centroid_lat", "centroid_lon")
+    cv_por_barrio = conteo_por_barrio(cv_ciudad, "centros_vecinales")
+    # Guardar procesado
+    cv_export = cv_ciudad[["centroid_lat", "centroid_lon", "label", "CPC", "DIRECCION", "barrio_asignado"]].copy()
+    cv_export.to_csv("data/processed/centros_vecinales_limpio.csv", index=False, encoding="utf-8-sig")
+    print(f"      Centros vecinales en ciudad: {len(cv_ciudad)} | Barrios: {len(cv_por_barrio)}")
+else:
+    print("      AVISO: data/raw/centros_vecinales.csv no encontrado — columna en 0")
+
+# ── 9. UNIR TODO ─────────────────────────────────────────────
+print("\n[9/9] Uniendo todos los datasets en v6...")
 dataset = base.copy()
+
+# Asegurar tipos numéricos
+for col in ["poblacion", "hogares", "nbi"]:
+    if col in dataset.columns:
+        dataset[col] = pd.to_numeric(dataset[col], errors="coerce").fillna(0).astype(int)
+
+# Filtrar barrios con nombre vacío
+dataset = dataset[dataset["barrio"].str.strip().str.len() > 0].copy()
+print(f"  Barrios válidos: {len(dataset)}")
+
+# Calcular pct_nbi (evitar inf cuando hogares=0)
+dataset["pct_nbi"] = 0.0
+mask = dataset["hogares"] > 0
+dataset.loc[mask, "pct_nbi"] = (dataset.loc[mask, "nbi"] / dataset.loc[mask, "hogares"] * 100).round(2)
+
+# Escuelas municipales (de CSV raw, 38 establecimientos)
+esc_muni_path = "data/raw/ZONAS_ESCUELAS_MUNICIPALES_Corregido_2.csv"
+if os.path.exists(esc_muni_path):
+    esc_muni = pd.read_csv(esc_muni_path)
+    barrio_col_muni = next((c for c in esc_muni.columns if "barrio" in c.lower()), None)
+    if barrio_col_muni:
+        esc_muni["barrio_norm"] = esc_muni[barrio_col_muni].apply(normalizar)
+        muni_por_barrio = esc_muni.groupby("barrio_norm").size().reset_index(name="escuelas_municipales")
+        dataset["barrio_norm_tmp"] = dataset["barrio"].apply(normalizar)
+        dataset = dataset.merge(muni_por_barrio, left_on="barrio_norm_tmp", right_on="barrio_norm", how="left")
+        dataset["escuelas_municipales"] = dataset["escuelas_municipales"].fillna(0).astype(int)
+        dataset = dataset.drop(columns=["barrio_norm", "barrio_norm_tmp"], errors="ignore")
+        print(f"  ✓ escuelas_municipales       : {(dataset['escuelas_municipales'] > 0).sum():3d} barrios con datos")
+    else:
+        dataset["escuelas_municipales"] = 0
+else:
+    dataset["escuelas_municipales"] = 0
 
 # Normalizar barrio en el dataset base para el join
 dataset["barrio_norm"] = dataset["barrio"].apply(normalizar)
@@ -286,6 +342,7 @@ joins = [
     (total_por_barrio,    "escuelas_total"),
     (estatal_por_barrio,  "escuelas_estatales"),
     (privado_por_barrio,  "escuelas_privadas"),
+    (cv_por_barrio,       "centros_vecinales"),
 ]
 
 for df_join, col_name in joins:
@@ -304,8 +361,6 @@ for df_join, col_name in joins:
         dataset[col_name] = 0
         print(f"  ✗ {col_name:<25}: sin datos")
 
-# Centros vecinales — todavía pendiente, mantener en 0
-dataset["centros_vecinales"] = 0
 
 # Eliminar columna auxiliar
 dataset = dataset.drop(columns=["barrio_norm"], errors="ignore")
@@ -326,27 +381,21 @@ output = "data/processed/dataset_final_v6.csv"
 dataset.to_csv(output, index=False, encoding="utf-8-sig")
 
 # ─────────────────────────────────────────────────────────────
-# COMPARATIVA v5 vs v6
+# RESUMEN
 # ─────────────────────────────────────────────────────────────
-v5 = pd.read_csv("data/processed/dataset_final_v5.csv")
-
 print(f"\n{'='*65}")
-print("COMPARATIVA: dataset_final_v5  →  dataset_final_v6")
+print("RESUMEN COBERTURA")
 print(f"{'='*65}")
-print(f"  {'Variable':<28} {'v5 (barrios)':>12}  {'v6 (barrios)':>12}  {'Mejora':>8}")
-print(f"  {'-'*64}")
+print(f"  {'Variable':<28} {'Barrios con datos':>18}")
+print(f"  {'-'*48}")
 
-cols_comp = [
-    "centros_salud", "paradas_colectivo", "lineas_colectivo",
-    "luminarias_reportes", "comisarias",
-    "escuelas_total", "escuelas_estatales", "escuelas_privadas"
-]
-for col in cols_comp:
-    n_v5 = (v5[col] > 0).sum() if col in v5.columns else 0
-    n_v6 = (dataset[col] > 0).sum() if col in dataset.columns else 0
-    delta = n_v6 - n_v5
-    arrow = "↑" if delta > 0 else ("↓" if delta < 0 else "=")
-    print(f"  {col:<28} {n_v5:>12}  {n_v6:>12}  {arrow}{abs(delta):>6}")
+for col in ["centros_salud", "paradas_colectivo", "lineas_colectivo",
+            "luminarias_reportes", "comisarias", "escuelas_total",
+            "escuelas_estatales", "escuelas_privadas", "centros_vecinales"]:
+    if col in dataset.columns:
+        n = (dataset[col] > 0).sum()
+        print(f"  {col:<28} {n:>5} / {len(dataset)}")
 
 print(f"\n✅ dataset_final_v6.csv guardado: {output}")
 print(f"   Filas: {len(dataset)} | Columnas: {len(dataset.columns)}: {list(dataset.columns)}")
+
