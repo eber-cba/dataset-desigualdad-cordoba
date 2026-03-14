@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+
+==================================================
+  GTFS stops.txt
+==================================================
+Archivos en ZIP: ['agency.txt', 'calendar.txt', 'calendar_dates.txt', 'fare_attributes.txt', 'fare_rules.txt', 'routes.txt', 'shapes.txt', 'stops.txt', 'stop_times.txt', 'trips.txt']
+Cols: ['stop_id', 'stop_name', 'stop_lat', 'stop_lon']
+Filas: 5553
+stop_id                stop_name   stop_lat   stop_lon
+  C7079 Constancio C. Vigil 1219 -31.354796 -64.157136
+  C7082       Juan Montalvo 4702 -31.354480 -64.163852
+  C7080    Alfonsina Storni 1171 -31.355978 -64.158665
+  C7081    Alfonsina Storni 1013 -31.355346 -64.160838
+  C7085     Alfonsina Storni 261 -31.353839 -64.172055
+
+==================================================
+  LUMINARIAS
+==================================================
+  File "C:\Users\eberc\.gemini\antigravity\scratch\dataset_cordoba\scripts\explorar_datasets.py", line 26, in <module>
+Cols: ['ID', 'Area Servicio', 'Tipo Incidente', 'Fecha Creacion', 'prioridad', 'estado', 'Fecha actualizacion', 'Direccion', 'Barrio', 'Zona Operativa', 'Latitud', 'Longitud', 'origen', 'Creado por', 'Observaciones', 'Otros', 'Identificador', 'Orden', 'Zona Administrativa', 'Nombre', 'Apellido', 'DNI', 'Email', 'Telefono', 'Barrio_1', 'Fecha Alta Ciudadano', 'Name', 'description', 'timestamp', 'begin', 'end', 'altitudeMode', 'tessellate', 'extrude', 'visibility', 'drawOrder', 'icon', 'fid', 'x', 'y', 'Nombre_del_Espacio_Verde', 'CPC', 'layer', 'path']
+ALL COLS: ['ID', 'Area Servicio', 'Tipo Incidente', 'Fecha Creacion', 'prioridad', 'estado', 'Fecha actualizacion', 'Direccion', 'Barrio', 'Zona Operativa', 'Latitud', 'Longitud', 'origen', 'Creado por', 'Observaciones', 'Otros', 'Identificador', 'Orden', 'Zona Administrativa', 'Nombre', 'Apellido', 'DNI', 'Email', 'Telefono', 'Barrio_1', 'Fecha Alta Ciudadano', 'Name', 'description', 'timestamp', 'begin', 'end', 'altitudeMode', 'tessellate', 'extrude', 'visibility', 'drawOrder', 'icon', 'fid', 'x', 'y', 'Nombre_del_Espacio_Verde', 'CPC', 'layer', 'path']
+    print(lum.to_string(index=False))
+  File "C:\Users\eberc\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\x91' in position 701: character maps to <undefined>

@@ -33,7 +33,7 @@ dataset_cordoba/
 
 ## 📊 Dataset principal
 
-**Archivo:** `data/processed/dataset_final_v3.csv` *(versión actual)*
+**Archivo:** `data/processed/dataset_final_v4.csv` *(versión actual)*
 
 | Columna | Tipo | Descripción |
 |---------|------|-------------|
@@ -41,9 +41,14 @@ dataset_cordoba/
 | `poblacion` | número | Personas residentes (Censo Nacional 2010) |
 | `hogares` | número | Cantidad de hogares en el barrio |
 | `nbi` | número | Hogares con Necesidades Básicas Insatisfechas |
-| `pct_nbi` | decimal | Porcentaje de hogares con NBI = `(nbi/hogares)*100` |
-| `escuelas_municipales` | entero | Escuelas primarias municipales en el barrio |
-| `centros_salud` | entero | Centros de salud y hospitales municipales en el barrio |
+| `pct_nbi` | decimal | % hogares con NBI = `(nbi/hogares)*100` |
+| `escuelas_municipales` | entero | Escuelas primarias municipales |
+| `centros_salud` | entero | Centros de salud y hospitales municipales |
+| `paradas_colectivo` | entero | Paradas de transporte urbano (GTFS 2023) |
+| `lineas_colectivo` | entero | Líneas de colectivo distintas por barrio |
+| `luminarias_reportes` | entero | Reportes de luminarias LED (proxy de cobertura) |
+| `comisarias` | entero | Comisarías, subcomisarías y unidades judiciales |
+| `centros_vecinales` | entero | Centros vecinales (pendiente de mejorar) |
 
 **Registros:** 494 barrios de la ciudad de Córdoba
 

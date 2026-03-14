@@ -3,6 +3,45 @@
 
 ---
 
+## [v0.6] — 2026-03-14 03:18 hs
+
+**Pedido:** Agregar datos de transporte (GTFS + recorridos), iluminaria, comisarías y centros vecinales. Integrar todo. Al final hacer un buen commit.
+
+**Qué se hizo:**
+- El usuario descargó manualmente: `cordoba.gtfs_3.zip`, `rutas.kml`, `PuntosGPS.kml`, `Luminarias_LED_-_Cordoba_Total.csv`, `Comisarías_Subcomisarías_Unidades_Judiciales_-_2023.csv`, `CENTROS VECINALES Y COMISIONES DE VECINOS.kmz` + CSVs convertidos
+- Se copiaron a `data/raw/` con nombres normalizados
+- Se instaló `scipy` para el algoritmo de asignación espacial KD-tree
+- Se creó `scripts/integrador_dataset.py` con:
+  - **Centroides de barrio:** se derivan de los centros de salud + KD-tree (`cKDTree`) para asignar cada punto GPS al barrio más cercano
+  - **GTFS (stops.txt + stop_times.txt + trips.txt + routes.txt):** 5,553 paradas, 79 líneas → `paradas_colectivo` y `lineas_colectivo`
+  - **Luminarias:** CSV de 56,842 reportes con columna `Barrio` directa → `luminarias_reportes`
+  - **Comisarías:** CSV con columnas `Latitud`/`Longitud` directas + KD-tree → `comisarias`
+  - **Centros Vecinales:** AVISO — el archivo convertido tiene geometría de polígonos (km2), no puntos. Necesita reprocesamiento futuro.
+  - LEFT JOIN de todo sobre `dataset_final_v3.csv` → `dataset_final_v4.csv`
+
+**Por qué KD-tree:** La asignación geoespacial correcta requiere polígonos de barrios (shapefile). Sin ellos, el centroide más cercano es la mejor aproximación disponible. Es una limitación documentada.
+
+**Resultado final — `dataset_final_v4.csv` (12 columnas):**
+
+| Variable | Barrios con datos | Cobertura |
+|---------|------------------|-----------|
+| `escuelas_municipales` | 34 | 7% |
+| `centros_salud` | 90 | 18% |
+| `paradas_colectivo` | 90 | 18% |
+| `lineas_colectivo` | 90 | 18% |
+| `luminarias_reportes` | 323 | **65%** |
+| `comisarias` | 37 | 7% |
+| `centros_vecinales` | 0 | pendiente |
+
+**Limitaciones documentadas:**
+- La asignación GPS→barrio usa centroides de centros de salud (91 barrios), no el shapefile completo de 494 barrios
+- Centros vecinales: el KMZ descargado tiene polígonos CPC/seccionales, no puntos de cada centro vecinal individual
+- Cobertura del GTFS y comisarías limitada a los 91 barrios con centroide conocido
+
+**Archivo salida:** `data/processed/dataset_final_v4.csv`
+
+---
+
 ## [v0.5] — 2026-03-14 02:15 hs
 
 **Pedido:** Crear un repositorio git, un archivo de logs con hora/fecha/pedido, una guía completa de qué hace cada script y cómo, y después agregar los centros de salud.
