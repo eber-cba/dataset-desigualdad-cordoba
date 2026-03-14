@@ -33,7 +33,7 @@ dataset_cordoba/
 
 ## 📊 Dataset principal
 
-**Archivo:** `data/processed/dataset_final_v2.csv` *(versión actual)*
+**Archivo:** `data/processed/dataset_final_v3.csv` *(versión actual)*
 
 | Columna | Tipo | Descripción |
 |---------|------|-------------|
@@ -43,8 +43,9 @@ dataset_cordoba/
 | `nbi` | número | Hogares con Necesidades Básicas Insatisfechas |
 | `pct_nbi` | decimal | Porcentaje de hogares con NBI = `(nbi/hogares)*100` |
 | `escuelas_municipales` | entero | Escuelas primarias municipales en el barrio |
+| `centros_salud` | entero | Centros de salud y hospitales municipales en el barrio |
 
-**Registros:** ~494 barrios de la ciudad de Córdoba
+**Registros:** 494 barrios de la ciudad de Córdoba
 
 ---
 

@@ -3,6 +3,47 @@
 
 ---
 
+## [v0.5] — 2026-03-14 02:15 hs
+
+**Pedido:** Crear un repositorio git, un archivo de logs con hora/fecha/pedido, una guía completa de qué hace cada script y cómo, y después agregar los centros de salud.
+
+**Qué se hizo:**
+- `git init` en el directorio del proyecto
+- Creación de `README.md` con descripción del proyecto, estructura, fuentes y preguntas de investigación
+- Creación de `CHANGELOG.md` (este archivo) con historial completo por versión
+- Creación de `SCRIPTS_GUIA.md` con documentación de cada script (qué hace, por qué existe, cómo funciona, qué genera, qué decisiones se tomaron)
+- Creación de `.gitignore` (Python, archivos temporales)
+- Primer commit git con todos los archivos del proyecto hasta ese momento
+
+**Por qué así:** El estándar de proyectos de ciencia de datos reproducibles requiere versionado (git) y documentación (README, CHANGELOG). El SCRIPTS_GUIA.md permite que cualquier alumno o futuro colaborador entienda el pipeline sin tener que leer el código.
+
+---
+
+## [v0.4] — 2026-03-14 02:33 hs
+
+**Pedido:** Agregar centros de salud al dataset.
+
+**Qué se hizo:**
+- El usuario descargó manualmente desde el portal de datos abiertos: `Centros de Salud.csv` (101 filas: centros de salud + hospitales + DEM)
+- Los archivos se copiaron a `data/raw/centros_salud_cordoba.csv` y `data/raw/salud_mental_cordoba.csv`
+- Se creó `scripts/procesar_salud.py` con:
+  - Filtrado por tipo: solo "Centro de Salud", "Hospital" y "Hospital de Pronta Atención" (excluye DEM, Banco de Sangre, Residencias)
+  - Función `extraer_barrio_de_nombre()` → regex sobre el patrón `"CS N° XX - NOMBRE"` 
+  - Diccionario `MAPPING_SALUD` con ~70 entradas de normalización
+  - Conteo por barrio, LEFT JOIN con dataset_final_v2.csv
+  - Generación de `data/processed/centros_salud_limpio.csv` (referencia)
+  - Generación de `data/processed/dataset_final_v3.csv`
+
+**Por qué se filtran los tipos:** DEM y Banco de Sangre son establecimientos especializados, no de atención primaria general. Para el indicador de "acceso a salud" lo más representativo son los centros de salud barriales y los hospitales.
+
+**Resultado:**
+- 90 barrios con ≥1 centro de salud o hospital municipal
+- Dataset v3: 494 barrios, 7 columnas: `barrio, poblacion, hogares, nbi, escuelas_municipales, pct_nbi, centros_salud`
+
+**Archivo salida:** `data/processed/dataset_final_v3.csv`
+
+---
+
 ## [v0.3] — 2026-03-14 02:10 hs
 
 **Pedido:** Solucionar el problema de matching entre escuelas y barrios. El script anterior dejaba la mayoría de barrios con `escuelas = 0`.
