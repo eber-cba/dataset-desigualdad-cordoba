@@ -35,12 +35,16 @@ Los alumnos van a poder responder preguntas como:
 - **Archivo salida:** `data/processed/barrios_cordoba_censal_limpio.csv`
 - **Resultado:** **496 barrios** con datos de población, hogares y NBI
 
-### Paso 4 — Agregar datos de escuelas municipales ✅ (CORREGIDO 14/03/2026)
-- **Archivo raw:** `data/raw/ZONAS_ESCUELAS_MUNICIPALES_Corregido_2.csv`
-- **Scripts v1 (obsoletos):** `limpiar_escuelas.py` → `agrupar_escuelas.py` → `unir_datasets.py`
-- **Script v2 (correcto):** `scripts/mejorar_escuelas.py`
-- **Archivo salida actual:** `data/processed/dataset_final_v2.csv`
-- **Resultado:** 34 barrios con escuelas correctamente asignadas (antes: ~8 por fallos de matching)
+### Paso 7 — Descarga de establecimientos educativos desde WFS de IDECOR ✅ (14/03/2026)
+- **Fuente:** IDECOR — MapasCórdoba, servidor WFS `idecor-ws.mapascordoba.gob.ar`
+- **Mapa original:** https://mapascordoba.gob.ar/viewer/mapa/77
+- **Script de descarga:** `scripts/descargar_escuelas_wfs.py` (descubrimiento automático de endpoint WFS)
+- **Script de integración:** `scripts/integrar_escuelas_idecor.py`
+- **Archivo raw:** `data/raw/escuelas_cordoba.csv` (5,471 establecimientos)
+- **Archivo procesado:** `data/processed/escuelas_idecor_limpio.csv` (filtrado a ciudad de Córdoba Capital)
+- **Resultado:** 3 columnas nuevas en el dataset: `escuelas_total`, `escuelas_estatales`, `escuelas_privadas`
+- **Tests:** `scripts/test_dataset.py` — **22/22 tests OK**
+- **Dataset final:** `data/processed/dataset_final_v5.csv` (15 columnas)
 
 ### Paso 5 — Análisis de prioridad ✅
 - **Script:** `scripts/analisis_prioridad.py`
@@ -191,12 +195,16 @@ Del portal de datos abiertos.
 | Dimensión | Valor actual | Objetivo para mentoría |
 |-----------|-------------|------------------------|
 | Barrios en dataset | **494** (SIN BARRIO eliminado) | OK |
-| Columnas | **6** (barrio, poblacion, hogares, nbi, escuelas_municipales, pct_nbi) | 8-10 |
-| Escuelas mapeadas correctamente | **34 barrios** | Limitado a escuelas municipales (38 total) |
+| Columnas | **15** (v5) | OK |
+| Escuelas (municipales, histórico) | 34 barrios — 38 establecimientos | OK (fuente original mantenida) |
+| **Escuelas total (IDECOR WFS 2026)** | **≥ 50 barrios** | ✅ Nuevo — supera objetivo |
+| **Escuelas estatales (IDECOR)** | **≥ 40 barrios** | ✅ Nuevo |
+| **Escuelas privadas (IDECOR)** | **≥ 30 barrios** | ✅ Nuevo |
 | Columna pct_nbi | ✅ Calculada | OK |
-| Centros de salud | ❌ No hay | Agregar |
-| Transporte | ❌ No hay | Agregar |
-| Coordenadas lat/lon | ❌ Falta cruzar | Agregar (opcional) |
+| Centros de salud | ✅ 90 barrios | OK |
+| Transporte (GTFS) | ✅ 90 barrios | OK |
+| Luminarias | ✅ 323 barrios | OK |
+| Tests automáticos | **✅ 22/22 tests OK** | ✅ Nuevo |
 
 ---
 
@@ -230,4 +238,6 @@ Del portal de datos abiertos.
 | ~Mar 13 | Uní escuelas con dataset censal |
 | ~Mar 13 | Hice análisis de prioridad por barrio |
 | 14/03/2026 00:01 | Creé GUIA_PROYECTO.md con auditoría completa del proyecto |
-| **14/03/2026 02:10** | **[CORRECCIÓN ESCUELAS]** Se pidió: solucionar el problema del matching de escuelas con barrios. **Qué hice:** Analicé los 21 casos de mismatch usando Python. Detecté que los datos de escuelas usaban abreviaturas (Vª=VILLA, STA=SANTA, JOSE I. DIAZ III=JOSE IGNACIO DIAZ SECCION 3, etc.). Creé `scripts/mejorar_escuelas.py` que: (1) extrae el barrio desde el nombre completo del establecimiento, (2) aplica regex de normalización, (3) aplica diccionario manual para los 21 casos restantes, (4) elimina fila SIN BARRIO, (5) calcula pct_nbi, (6) genera `data/processed/dataset_final_v2.csv`. **Resultado:** 34 barrios con escuelas (antes ~8), SIN BARRIO eliminado, pct_nbi agregado. **Limitación que queda:** Solo son escuelas municipales (38 en Córdoba), no nacionales/provinciales. |
+| **14/03/2026 02:10** | **[CORRECCIÓN ESCUELAS]** Script `mejorar_escuelas.py` — 34 barrios con escuelas, pct_nbi, `dataset_final_v2.csv` |
+| **14/03/2026 03:18** | **[v0.6]** Transporte GTFS, luminarias, comisarías, centros vecinales → `dataset_final_v4.csv` (12 cols) |
+| **14/03/2026 15:25** | **[v0.7]** WFS IDECOR: 5,471 establecimientos educativos → 3 columnas nuevas → `dataset_final_v5.csv` (15 cols). 22 tests OK. Docs actualizadas. Git push. |

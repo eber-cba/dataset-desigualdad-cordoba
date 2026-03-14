@@ -3,7 +3,50 @@
 
 ---
 
+## [v0.7] — 2026-03-14 15:25 hs
+
+**Pedido:** Descargar los establecimientos educativos actualizados desde https://mapascordoba.gob.ar/viewer/mapa/77 usando QGIS u otro programa, integrarlos al dataset, actualizar los informes y README, correr tests y hacer commit.
+
+**Qué se hizo:**
+
+1. **Descarga WFS de IDECOR** — Se descubrió que QGIS no estaba instalado. Se usó Python con `urllib` + `geopandas` para conectarse directamente al WFS oficial de IDECOR: `https://idecor-ws.mapascordoba.gob.ar/geoserver/wfs`. Capa: `educacion:establecimientos_educativos`. Se descargaron **5,471 establecimientos** con coordenadas, sector (Estatal/Privado), nivel educativo, barrio declarado y departamento. Archivos generados: `data/raw/escuelas_cordoba.csv` y `data/raw/escuelas_cordoba_wfs.geojson`.
+
+2. **Script `scripts/integrar_escuelas_idecor.py`** — Nuevo script que:
+   - Filtra los establecimientos a la ciudad de Córdoba (departamento = "Capital" + bbox geográfico)
+   - Asigna cada establecimiento al barrio más cercano vía KD-tree (misma técnica que `integrador_dataset.py`)
+   - Genera 3 columnas nuevas: `escuelas_total`, `escuelas_estatales`, `escuelas_privadas`
+   - Mantiene `escuelas_municipales` para retrocompatibilidad
+   - Genera `data/processed/escuelas_idecor_limpio.csv` como referencia
+   - Genera `data/processed/dataset_final_v5.csv`
+
+3. **Script `scripts/test_dataset.py`** — Suite de 22 tests automáticos (3 clases):
+   - `TestDatasetV5`: columnas, tipos, cantidad de barrios, sin duplicados, pct_nbi en [0,100], sin negativos, cobertura de escuelas ≥50 barrios, consistencia estatales ≤ total, retrocompatibilidad con v4
+   - `TestEscuelasRaw`: columnas básicas, ≥5000 registros, coordenadas en rango Argentina, sectores válidos
+   - `TestEscuelasProcesadas`: barrio_asignado presente, tasa de asignación ≥80%, bbox ciudad
+   - **Resultado: 22/22 tests OK**
+
+4. **Documentación actualizada:** README.md, CHANGELOG.md, GUIA_PROYECTO.md, SCRIPTS_GUIA.md
+
+**Por qué KD-tree para asignación:** La asignación geoespacial ideal requiere polígonos de barrios (shapefile). Sin ellos, el centroide más cercano es la mejor aproximación disponible con los datos existentes. Limitación documentada.
+
+**Resultado final — `dataset_final_v5.csv` (15 columnas):**
+
+| Variable nueva | Barrios con datos | Cobertura |
+|---------------|------------------|-----------| 
+| `escuelas_total` | ~90+ | ~18%+ |
+| `escuelas_estatales` | ~80+ | ~16%+ |
+| `escuelas_privadas` | ~60+ | ~12%+ |
+
+> La cobertura efectiva está limitada por los 91 centroides de barrio disponibles (derivados de centros de salud). Los ~400 barrios sin centroide no reciben asignación por KD-tree.
+
+**Limitación documentada:** La asignación usa los mismos 91 centroides del script anterior. Para mejorar la cobertura se necesita el shapefile completo de todos los 494 barrios con sus polígonos.
+
+**Archivo salida:** `data/processed/dataset_final_v5.csv`
+
+---
+
 ## [v0.6] — 2026-03-14 03:18 hs
+
 
 **Pedido:** Agregar datos de transporte (GTFS + recorridos), iluminaria, comisarías y centros vecinales. Integrar todo. Al final hacer un buen commit.
 

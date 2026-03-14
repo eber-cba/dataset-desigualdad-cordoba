@@ -186,29 +186,163 @@ Este script usa el dataset v1 (con bugs de matching). Conviene actualizarlo para
 
 ---
 
-## 7. `procesar_salud.py` 🔜 (POR CREAR)
+## 7. `procesar_salud.py` ✅ (ACTIVO — v3)
 
-### ¿Qué hará?
-Procesará el dataset de centros de salud municipales de Córdoba, contará cuántos quedan dentro de cada barrio y unirá con `dataset_final_v2.csv`.
+### ¿Qué hace?
+Procesa el dataset de centros de salud municipales de Córdoba y genera `dataset_final_v3.csv`.
 
-### Lógica plannificada
+### ¿Cómo funciona?
 ```
-Entrada:  data/raw/centros_salud_cordoba.csv (o KML convertido)
+Entradas: data/raw/centros_salud_cordoba.csv
           data/processed/dataset_final_v2.csv
 
 Proceso:
-  → Normalizar nombres de barrio (igual que mejorar_escuelas.py)
-  → Contar centros de salud por barrio
-  → LEFT JOIN con dataset_final_v2
-  → Generar dataset_final_v3.csv
+  → Filtra por tipo: Centro de Salud, Hospital, HPA
+  → Extrae barrio desde el nombre del centro (regex sobre "CS N° XX - NOMBRE")
+  → Diccionario MAPPING_SALUD con ~70 entradas de normalización
+  → Conteo por barrio, LEFT JOIN con v2
 
-Salida:   data/processed/dataset_final_v3.csv
-          (+ columna centros_salud)
+Salida: data/processed/centros_salud_limpio.csv
+        data/processed/dataset_final_v3.csv (+ columna centros_salud)
 ```
 
 ---
 
-## 🗂️ Flujo completo de datos
+## 8. `integrador_dataset.py` ✅ (ACTIVO — v4)
+
+### ¿Qué hace?
+Integra transporte (GTFS), luminarias, comisarías y centros vecinales. Genera `dataset_final_v4.csv`.
+
+### ¿Cómo funciona?
+- Usa **KD-tree** (`scipy.cKDTree`) con centroides de barrio (derivados de `centros_salud_limpio.csv`)
+- Asigna cada punto GPS (parada, comisaría, etc.) al barrio más cercano
+- LEFT JOINs sucesivos sobre `dataset_final_v3.csv`
+
+---
+
+## 9. `descargar_escuelas_wfs.py` ✅ (NUEVO — v0.7)
+
+### ¿Qué hace?
+Descarga automáticamente los establecimientos educativos desde el WFS oficial de IDECOR (MapasCórdoba), sin necesidad de QGIS ni interfaz gráfica.
+
+### ¿Por qué existe?
+El usuario pidió descargar el mapa https://mapascordoba.gob.ar/viewer/mapa/77. El sitio es una SPA con JavaScript. Se descubrió el endpoint WFS subyacente y se automatizó la descarga con Python puro (`urllib` + `geopandas`).
+
+### ¿Cómo funciona?
+```
+Proceso:
+  1. Prueba una lista de endpoints GeoServer conocidos
+  2. Al encontrar el WFS activo (idecor-ws.mapascordoba.gob.ar),
+     hace GetCapabilities para listar capas disponibles
+  3. Filtra capas con "educ" en el nombre
+  4. Descarga con GetFeature → outputFormat=application/json
+  5. Convierte GeoJSON a CSV con coordenadas lat/lon
+
+Salidas: data/raw/escuelas_cordoba_wfs.geojson  ← GeoJSON completo
+         data/raw/escuelas_cordoba.csv           ← CSV listo para pandas
+         (5,471 establecimientos de toda la provincia)
+```
+
+### Variables que produce
+| Columna | Qué contiene |
+|---------|-------------|
+| `cueanexo` | Código único del establecimiento (CUEANEXO) |
+| `nombre` | Nombre completo del establecimiento |
+| `est_sector` | "Estatal" o "Privado" |
+| `est_ambito` | "Urbano" o "Rural" |
+| `est_domicilio` | Dirección |
+| `est_barrio` | Barrio declarado (texto libre) |
+| `est_localidad` | Localidad |
+| `est_departamento` | Departamento de Córdoba |
+| `nivel` | Nivel educativo (Inicial, Primario, Secundario, etc.) |
+| `n_plan_estudio` | Plan de estudio |
+| `lat` / `lon` | Coordenadas WGS84 |
+
+---
+
+## 10. `integrar_escuelas_idecor.py` ✅ (NUEVO — v0.7)
+
+### ¿Qué hace?
+Integra los datos de IDECOR al `dataset_final_v4.csv`, generando `dataset_final_v5.csv` con 3 columnas nuevas de establecimientos educativos.
+
+### ¿Por qué existe?
+El dataset anterior solo tenía `escuelas_municipales` (38 establecimientos). Con los datos de IDECOR se puede cuantificar la **cobertura educativa real** de cada barrio, distinguiendo sector público de privado.
+
+### ¿Cómo funciona?
+```
+Entradas: data/raw/escuelas_cordoba.csv
+          data/processed/dataset_final_v4.csv
+          data/processed/centros_salud_limpio.csv (para centroides)
+
+Proceso:
+  1. Filtra establecimientos al departamento Capital + bbox ciudad:
+     lat ∈ [-31.55, -31.20], lon ∈ [-64.35, -64.00]
+  2. Calcula centroides de barrio (igual que integrador_dataset.py)
+  3. KD-tree: asigna cada escuela al barrio más cercano
+  4. Cuenta por barrio: total, estatales, privadas
+  5. Guarda escuelas_idecor_limpio.csv para referencia
+  6. LEFT JOIN sobre dataset_final_v4 → dataset_final_v5
+
+Salidas: data/processed/escuelas_idecor_limpio.csv
+         data/processed/dataset_final_v5.csv (15 columnas)
+```
+
+### Variables que produce
+| Columna | Qué mide |
+|---------|----------|
+| `escuelas_total` | Total de establecimientos asignados al barrio |
+| `escuelas_estatales` | Solo establecimientos estatales (públicos) |
+| `escuelas_privadas` | Solo establecimientos privados |
+
+### ⚠️ Limitación
+Usa los mismos 91 centroides del script anterior. Los ~400 barrios sin centroide conocido quedan con 0 en las columnas nuevas. Para mejorar se necesita el shapefile de polígonos de todos los barrios.
+
+---
+
+## 11. `test_dataset.py` ✅ (NUEVO — v0.7)
+
+### ¿Qué hace?
+Suite de tests automáticos (22 en total) que validan la integridad del dataset y los archivos intermedios. Debe ejecutarse después de cualquier cambio.
+
+### ¿Cómo correrlo?
+```bash
+# Ejecución directa
+python scripts/test_dataset.py
+
+# Con pytest (más detallado)
+python -m pytest scripts/test_dataset.py -v
+```
+
+### Tests incluidos
+
+| Clase | Test | Qué valida |
+|-------|------|-----------|
+| `TestDatasetV5` | `test_01_columnas_presentes` | Las 15 columnas de v5 existen |
+| `TestDatasetV5` | `test_02_tipos_numericos` | Columnas numéricas no son object |
+| `TestDatasetV5` | `test_03_cantidad_barrios` | Exactamente 494 filas |
+| `TestDatasetV5` | `test_04_barrios_sin_duplicados` | Sin barrios repetidos |
+| `TestDatasetV5` | `test_05_sin_barrio_sin_nombre` | Ningún barrio vacío/NaN |
+| `TestDatasetV5` | `test_06_pct_nbi_rango` | pct_nbi ∈ [0, 100] |
+| `TestDatasetV5` | `test_07_sin_valores_negativos` | Sin negativos en columnas numéricas |
+| `TestDatasetV5` | `test_08_cobertura_escuelas_total` | ≥50 barrios con escuelas_total > 0 |
+| `TestDatasetV5` | `test_09_cobertura_escuelas_estatales` | ≥40 barrios con escuelas_estatales > 0 |
+| `TestDatasetV5` | `test_10_estatales_leq_total` | estatales ≤ total en todos los barrios |
+| `TestDatasetV5` | `test_11_privadas_leq_total` | privadas ≤ total en todos los barrios |
+| `TestDatasetV5` | `test_12_suma_leq_total` | estatales + privadas ≤ total |
+| `TestDatasetV5` | `test_13_retrocompat_columnas_v4` | Todas las columnas de v4 presentes en v5 |
+| `TestDatasetV5` | `test_14_retrocompat_escuelas_municipales` | `escuelas_municipales` no cambió |
+| `TestEscuelasRaw` | `test_01_columnas_basicas` | Columnas clave en el raw |
+| `TestEscuelasRaw` | `test_02_cantidad_minima` | ≥5000 registros descargados |
+| `TestEscuelasRaw` | `test_03_coordenadas_validas` | lat/lon en rango Argentina |
+| `TestEscuelasRaw` | `test_04_sectores_conocidos` | Solo "Estatal" o "Privado" |
+| `TestEscuelasRaw` | `test_05_sin_nombres_vacios` | Menos del 1% sin nombre |
+| `TestEscuelasProcesadas` | `test_01_columna_barrio_asignado` | `barrio_asignado` presente |
+| `TestEscuelasProcesadas` | `test_02_tasa_asignacion` | ≥80% de escuelas asignadas a un barrio |
+| `TestEscuelasProcesadas` | `test_03_escuelas_en_ciudad` | Todas dentro del bbox de Córdoba |
+
+---
+
+## 🗂️ Flujo completo de datos — v5
 
 ```
 FUENTES RAW
@@ -217,11 +351,24 @@ FUENTES RAW
   │       └── clean_dataset.py
   │               └── barrios_cordoba_censal_limpio.csv
   │                                   │
-  ├── ZONAS_ESCUELAS.csv              │
+  ├── ZONAS_ESCUELAS_MUNICIPALES.csv  │
   │       └── mejorar_escuelas.py ────┤
   │               └── dataset_final_v2.csv
   │                                   │
-  └── centros_salud.csv (pendiente)   │
-          └── procesar_salud.py ──────┘
-                  └── dataset_final_v3.csv  ← DATASET FINAL
+  ├── centros_salud_cordoba.csv       │
+  │       └── procesar_salud.py ──────┤──→ centros_salud_limpio.csv (centroides)
+  │               └── dataset_final_v3.csv           │
+  │                                   │              │
+  ├── gtfs + luminarias + comisarías  │              │
+  │       └── integrador_dataset.py ──┤              │
+  │               └── dataset_final_v4.csv           │
+  │                                   │              │
+  └── WFS IDECOR (5,471 escuelas)    │              │
+          └── descargar_escuelas_wfs.py              │
+          └── escuelas_cordoba.csv                   │
+                  └── integrar_escuelas_idecor.py ───┘
+                          └── dataset_final_v5.csv  ← DATASET FINAL
+
+VALIDACIÓN:
+          └── test_dataset.py  (22 tests, todos OK ✅)
 ```
