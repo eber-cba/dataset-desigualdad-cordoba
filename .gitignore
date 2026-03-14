@@ -25,3 +25,6 @@ desktop.ini
 # IDE
 .vscode/
 .idea/
+
+# Guia secreta del mentor
+GUIA_SECRETA_MENTOR.md
