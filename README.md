@@ -2,7 +2,12 @@
 
 **🚀 Proyecto candidato para la Convocatoria a Mentorías DiploDatos FAMAF 2026.**
 
-Este repositorio consolida un proyecto avanzado de **Ciencia de Datos y Análisis Geoespacial** enfocado en los 495 barrios de la ciudad de Córdoba Capital. 
+> [!TIP]
+> **🌟 NUEVO: Visualizador Interactivo Vercel**
+> Hemos lanzado la capa interactiva Front-End de este proyecto. Puedes navegar por Córdoba, visualizar la desigualdad calle por calle y realizar un Tour Guiado de Datos ingresando a:
+> 👉 **[dashboard-desigualdad-cordoba.vercel.app](https://dashboard-desigualdad-cordoba.vercel.app)** 
+
+Este repositorio consolida la investigación core, el **Ciencia de Datos y Análisis Geoespacial** enfocado en los 495 barrios de la ciudad de Córdoba Capital. 
 
 El objetivo principal de este proyecto es medir matemáticamente la vulnerabilidad y la desigualdad urbana, cruzando datos demográficos reales de pobreza (NBI) con el acceso a infraestructura pública (escuelas, centros de salud, luminarias y transporte público).
 
