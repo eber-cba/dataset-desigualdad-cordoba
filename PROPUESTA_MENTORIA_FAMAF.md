@@ -7,7 +7,7 @@
 ## 1. Información General del Proyecto
 
 * **Título de la Mentoría:** Urban Data Science: Segmentación territorial, desigualdad y análisis geoespacial de la ciudad de Córdoba.
-* **Mentor Propuesto:** Eber (Especialista en Datos y Arquitectura de ML).
+* **Mentor Propuesto:** Eber (Fullstack Developer y Docente).
 * **Naturaleza del Dataset:** Datos 100% públicos y abiertos de la Provincia y Municipio de Córdoba (Open Data Córdoba, IDECOR, Censo Provincial). 
 * **Privacidad Sensible:** **No aplica.** El dataset está anonimizado y agregado estrictamente a nivel de **Barrio**. No presenta ni un solo registro individual a nivel de persona física o vivienda unifamiliar. Son polígonos urbanos y métricas de densidad. 
 
