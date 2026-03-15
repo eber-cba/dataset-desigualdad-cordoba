@@ -1,13 +1,14 @@
-import pandas as pd
-import numpy as np
 import os
+
+import numpy as np
+import pandas as pd
 
 print("Ejecutando Healthcheck Final...")
 
 files = [
     "data/processed/dataset_dashboard_v19.csv",
     "data/processed/dataset_ml_v19.csv",
-    "data/processed/dataset_gis_v19.geojson"
+    "data/processed/dataset_gis_v19.geojson",
 ]
 
 # Verificamos archivos
@@ -29,16 +30,16 @@ if np.isinf(df[num_cols]).sum().sum() > 0:
     exit(1)
 
 # Verificamos Clustering
-if 'cluster_descripcion' not in df.columns:
+if "cluster_descripcion" not in df.columns:
     print("Error: La columna 'cluster_descripcion' no existe.")
     exit(1)
 
 # Verificamos Bounding Box Espacial
-if not df['centroide_lat'].between(-32.5, -31.0).all():
+if not df["centroide_lat"].between(-32.5, -31.0).all():
     print("Error: Existen centroides fuera de la Latitud válida de Córdoba.")
     exit(1)
 
-if not df['centroide_lon'].between(-64.5, -63.5).all():
+if not df["centroide_lon"].between(-64.5, -63.5).all():
     print("Error: Existen centroides fuera de la Longitud válida de Córdoba.")
     exit(1)
 
