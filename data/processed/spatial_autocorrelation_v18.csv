@@ -1,0 +1,5 @@
+Variable,Moran's I,p-value,Interpretación
+pct_nbi,0.27397510945425574,0.001,Leve Agrupación Zonal
+infraestructura_score,0.06191601333636034,0.003,Leve Agrupación Zonal
+densidad_poblacional,0.1814773183625897,0.001,Leve Agrupación Zonal
+cluster_barrio,0.17233763533183968,0.001,Leve Agrupación Zonal
