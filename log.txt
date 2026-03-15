@@ -1,0 +1,19 @@
+=================================================================
+Traceback (most recent call last):
+EJECUTANDO V9 DE DATASET URBANO - CALIDAD 10/10
+=================================================================
+
+[1/10] Dataset V7 cargado. Filas iniciales: 495
+[2/10] Fase 1: AuditorÝa Estructural Total
+[3/10] Fase 2 y 3: Detecci¾n y Capping de Outliers
+[4/10] Fase 4: Validaci¾n Coherente de Variables Educativas
+[5/10] Fase 7 & 8: Generaci¾n de Features Derivadas (Densidad y Tasas)
+[6/10] Fase 9: ReingenierÝa del Score SintÚtico de Infraestructura
+[7/10] Fase 6 & 10: Control de Calidad 10/10
+[8/10] Exportando Master Dataset V9
+  File "C:\Users\eberc\.gemini\antigravity\scratch\dataset_cordoba\scripts\regenerar_dataset_v9.py", line 230, in <module>
+    print(f"\n[10/10] \u2705 GOLD STANDARD ALCANZADO!")
+  File "C:\Users\eberc\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 10: character maps to <undefined>
