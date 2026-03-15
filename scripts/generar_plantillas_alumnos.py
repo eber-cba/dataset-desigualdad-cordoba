@@ -61,20 +61,20 @@ def create_nb(filename, title, description, tasks):
 create_nb(
     '01_exploracion_plantilla.ipynb', 
     'Práctico 1: Análisis y Visualización Exploratoria (EDA)', 
-    'En este notebook vamos a cargar nuestro dataset final y explorarlo. Pensalo como si consumiéramos un endpoint `/api/barrios` y revisáramos el array de objetos JSON devuelto para entender qué propiedades (columnas) tiene e intentar renderizar las primeras gráficas.',
+    'En este notebook vamos a cargar nuestro dataset final y explorarlo estadísticamente para entender qué variables contiene e intentar renderizar las primeras gráficas y mapas.',
     [
         'Cargar el csv final del repositorio local usando Pandas (`pd.read_csv`).', 
         'Revisar los tipos de datos y descubrir nulos usando `.info()` y `.isnull().sum()`.', 
         'Limpiar o imputar datos faltantes mediante lógica matemática (ej: medias).',
         'Armar un histograma de la distribución del NBI en Córdoba usando matplotlib.', 
-        'Investigación libre: armar un mapa o gráfico interesante cruzando la Pobreza (NBI) vs Accesibilidad a Hospitales/Educación.'
+        'Investigación libre: armar un mapa o gráfico cruzando la Pobreza (NBI) vs Accesibilidad a Hospitales/Educación.'
     ]
 )
 
 create_nb(
     '02_clustering_plantilla.ipynb',
     'Práctico 2: Aprendizaje No Supervisado (Clustering Geodemográfico)',
-    'Acá usaremos algoritmos para buscar "perfiles gemelos" en los barrios de la ciudad. Es algo parecido a armar un Custom Hook en React que categorice el comportamiento de los usuarios interactuando automáticamente con la plataforma (segmentándolos en Activos, Inactivos, Críticos) sin pasarles variables estáticas (if/else). Acá lo hará el algoritmo KMeans midiendo distancias matemáticas.',
+    'Acá usaremos algoritmos para buscar "perfiles socio-urbanos" en los barrios de la ciudad. El algoritmo KMeans agrupará a los barrios en diferentes categorías (clusters) midiendo automáticamente las distancias matemáticas entre sus variables.',
     [
         'Filtrar la tabla base para quedarnos sólo con las columnas numéricas clave (NBI, escuelas cerca, luminarias, etc).', 
         'Escalar los datos usando la clase `StandardScaler` de scikit-learn (Esto es vital para no romper el algoritmo geométrico).', 
@@ -87,13 +87,13 @@ create_nb(
 create_nb(
     '03_regresion_plantilla.ipynb',
     'Práctico 3: Aprendizaje Supervisado (Predicción y Entendimiento)',
-    'En esta etapa pasamos de visualizar los datos a predecir resultados. Es como construir un recomendador inteligente (Black Box) pero nosotros abriremos esa caja. Le daremos infraestructura por barrio y el modelo intentará adivinar por su cuenta la vulnerabilidad de ese grupo urbano.',
+    'En esta etapa pasamos de visualizar los datos a predecir resultados. Le daremos la infraestructura de la ciudad por barrio y el modelo intentará aprender por su cuenta a diagnosticar la vulnerabilidad socioeconómica de ese grupo urbano.',
     [
         'Desvincular el Target: Separar el Dataset en "Features" / X (la infraestructura de la ciudad) y la predicción (Variable Y = `nbi`).', 
         'Realizar un Data Split separando el 80% como array de Training y el 20% como Testing (datos ciegos para validación).', 
         'Importar y entrenar (`.fit()`) un modelo potente como `RandomForestRegressor`.', 
-        'Evaluar la divergencia (Error MAE o RMSE) comprobando si el bot adivinó el nivel socioeconómico correctamente del subconjunto de testing.', 
-        'Recuperar la **Feature Importance** de Scikit-Learn: ¿El código dice matemáticamente que afecta más no tener escuelas cerca o no tener parada de colectivos?'
+        'Evaluar la divergencia (Error MAE o RMSE) comprobando si el modelo predijo el nivel socioeconómico correctamente del subconjunto de testing.', 
+        'Recuperar la **Feature Importance** de Scikit-Learn: ¿El modelo dice matemáticamente que afecta más no tener escuelas cerca o no tener parada de colectivos?'
     ]
 )
 
