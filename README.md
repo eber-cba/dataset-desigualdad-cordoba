@@ -1,5 +1,7 @@
-# Urban Data Science: Análisis Analítico y Espacial de Córdoba 🇦🇷
-**Nivel del Proyecto: Tesis Aplicada (Máximo Rigor MLOps 10/10)**
+# Urban Data Science: Análisis Espacial de Córdoba 🇦🇷
+**🚀 [DATASET OFICIAL] Proyecto candidato para la Convocatoria a Mentorías DiploDatos FAMAF 2026.**
+
+**Nivel Académico: Tesis Aplicada (Máximo Rigor MLOps 10/10)**
 
 Este repositorio consolida el desarrollo de un pipeline avanzado de **Data Science, Geospatial Analytics y Machine Learning** aplicado a los barrios de la ciudad de Córdoba Capital. 
 Su motor algorítmico evalúa tipologías sociodemográficas, densidades urbanas, y accesos a infraestructura de los ciudadanos.

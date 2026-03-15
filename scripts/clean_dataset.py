@@ -64,12 +64,26 @@ def clean_data():
     df['barrio'] = df['barrio'].astype(str).str.strip()
     
     # Creamos una lista de valores inválidos (en minúscula para hacer una comparación insensible a mayúsculas)
-    valores_invalidos = ['nan', 'sd', 'null', '-', '']
+    valores_invalidos = ['nan', 'sd', 'null', '-', '', 'sin barrio']
     # Filtramos el dataframe conservando las filas donde el barrio no esté en la lista de valores inválidos
     df = df[~df['barrio'].str.lower().isin(valores_invalidos)]
 
-    # 7. Eliminar barrios duplicados si existen (manteniendo la primera aparición)
-    df = df.drop_duplicates(subset=['barrio'], keep='first')
+    # 7. Agregar datos a nivel barrio (suma de radios censales)
+    # Limpiamos comas (miles) antes de convertir a numérico
+    df['poblacion'] = pd.to_numeric(df['poblacion'].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
+    df['hogares'] = pd.to_numeric(df['hogares'].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
+    df['nbi'] = pd.to_numeric(df['nbi'].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
+
+    # Convertimos el nombre a normalizado en mayuscula temporalmente
+    df['barrio'] = df['barrio'].str.upper()
+
+    agrupado = df.groupby('barrio').agg({
+        'poblacion': 'sum',
+        'hogares': 'sum',
+        'nbi': 'sum'
+    }).reset_index()
+
+    df = agrupado.copy()
 
     # 8. Mostrar un resumen del dataset limpio
     print("-" * 40)
