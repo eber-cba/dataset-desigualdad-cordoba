@@ -4,6 +4,7 @@ Este documento describe el esquema de nuestro archivo entregable principal (`dat
 
 ### 🏙️ Identificadores y Jerarquía
 * **`barrio`** (`string`): Nombre oficial del barrio de acuerdo a la cartografía de la Municipalidad de Córdoba.
+  > 📌 **Nota sobre la cantidad:** El dataset contiene 495 barrios consolidados. Aunque búsquedas en internet o algunas fuentes del municipio pueden mencionar hasta 560 barrios, ese número mayor incluye loteos en regularización, enclaves o zonas "no oficiales". Los 495 barrios de este proyecto representan las unidades territoriales consolidadas que cuentan con información censal completa y validada.
 * (Otros posibles IDs espaciales o de radio censal, usados internamente).
 
 ### 👥 Datos Demográficos Base
