@@ -4,6 +4,15 @@
   <img src="figures/mapa_clusters.png" alt="Mapa de Clusters Córdoba" width="700"/>
 </p>
 
+## 🌐 Dashboard Interactivo (Live Demo)
+
+> [!TIP]
+> **Explora los resultados de forma interactiva:**
+> ### 🔗 [https://dashboard-desigualdad-cordoba.vercel.app](https://dashboard-desigualdad-cordoba.vercel.app)
+> *Navega directamente sobre el mapa de la ciudad para visualizar los clústeres y equipamiento urbano.*
+
+---
+
 ## Descripción del problema
 
 El crecimiento de las ciudades muchas veces ocurre de manera desigual, generando zonas con profundas carencias estructurales que conviven con otras de alta consolidación urbana. Este proyecto fue diseñado como un **caso de estudio pedagógico** para explorar la medición y clasificación de la desigualdad territorial en la ciudad de Córdoba Capital (Argentina) utilizando herramientas de Ciencia de Datos.
