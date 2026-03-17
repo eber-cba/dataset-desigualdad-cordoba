@@ -36,62 +36,82 @@ def generate_pro_map():
 
     # Colores profesionales
     custom_palette = {
-        'Cluster 0: Núcleo consolidado': '#2ecc71', # Verde
+        'Cluster 0: Núcleo consolidado': '#10ac84', # Verde Esmeralda oscuro
         'Cluster 1: Zona en transición': '#f1c40f', # Amarillo
-        'Cluster 2: Periferia vulnerable': '#e74c3c' # Rojo
+        'Cluster 2: Periferia vulnerable': '#ee5253' # Rojo vivo
+    }
+    
+    # Símbolos para distinción visual
+    markers = {
+        'Cluster 0: Núcleo consolidado': 'o', # Círculo
+        'Cluster 1: Zona en transición': 'D', # Diamante
+        'Cluster 2: Periferia vulnerable': 's' # Cuadrado
     }
 
     # 2. Configuración de la figura
-    fig, ax = plt.subplots(figsize=(15, 15), dpi=150)
+    fig, ax = plt.subplots(figsize=(16, 16), dpi=150)
     
-    # --- CAPA 1: POLÍGONOS DE BARRIOS (COLOREADOS) ---
+    # --- CAPA 1: POLÍGONOS DE BARRIOS (Contornos muy suaves) ---
     print("Dibujando barrios...")
+    gdf_web.plot(ax=ax, color='none', edgecolor='black', linewidth=0.3, alpha=0.2)
+    
+    # Relleno muy sutil
     for cluster, color in custom_palette.items():
         subset = gdf_web[gdf_web['cluster_tag'] == cluster]
         if not subset.empty:
-            subset.plot(ax=ax, color=color, alpha=0.3, edgecolor='black', linewidth=0.4, label=cluster)
-    
-    # Dibujar barrios sin cluster asignado (si los hay) en gris
-    gdf_web[gdf_web['cluster_tag'].isna()].plot(ax=ax, color='#bdc3c7', alpha=0.1, edgecolor='black', linewidth=0.2)
+            subset.plot(ax=ax, color=color, alpha=0.15)
 
     # --- CAPA 2: MAPA BASE ---
     print("Agregando mapa real detrás...")
-    cx.add_basemap(ax, source=cx.providers.OpenStreetMap.Mapnik, zoom=13, zorder=0)
+    # Usando CartoDB Positron para un look más limpio o OSM original
+    cx.add_basemap(ax, source=cx.providers.OpenStreetMap.Mapnik, zoom=13, zorder=0, alpha=0.8)
     
-    # --- CAPA 3: PUNTOS (HIGHLIGHTS) ---
-    # Creamos los puntos desde el CSV directamente proyectados
+    # --- CAPA 3: PUNTOS (HIGHLIGHTS ESTÉTICOS) ---
     points_gdf = gpd.GeoDataFrame(
         df, 
         geometry=gpd.points_from_xy(df.centroide_lon, df.centroide_lat),
         crs="EPSG:4326"
     ).to_crs(epsg=3857)
     
-    print("Graficando puntos destacados...")
+    print("Graficando marcadores mejorados...")
     for cluster, color in custom_palette.items():
         subset = points_gdf[points_gdf['cluster_descripcion'].map(cluster_mapping) == cluster]
+        
+        # Efecto de sombra/borde: Dibujamos el punto dos veces
+        # 1. Borde grueso blanco
+        ax.scatter(
+            subset.geometry.x, 
+            subset.geometry.y, 
+            c='white', 
+            marker=markers[cluster],
+            s=180, 
+            zorder=4
+        )
+        
+        # 2. Punto real con color y forma
         ax.scatter(
             subset.geometry.x, 
             subset.geometry.y, 
             c=color, 
-            s=60, 
-            alpha=0.9, 
-            edgecolors='white', 
-            linewidth=0.6,
-            zorder=5
+            marker=markers[cluster],
+            s=120, 
+            alpha=1.0, 
+            edgecolors='black', 
+            linewidth=0.5,
+            zorder=5,
+            label=cluster
         )
 
     # 3. Estética y Diseño
-    ax.set_title('Segmentación Socioeconómica - Córdoba Capital\n(Vista por Barrios e Infraestructura)', 
-                 fontsize=22, pad=20, fontweight='bold', color='#2c3e50')
+    ax.set_title('Mapa Estratégico de Tipologías Urbanas\nCórdoba Capital', 
+                 fontsize=26, pad=25, fontweight='bold', color='#2d3436')
     
     ax.set_axis_off()
 
-    # Leyenda (usando los proxies de las capas plot)
-    from matplotlib.lines import Line2D
-    legend_elements = [Line2D([0], [0], marker='s', color='w', label=k, 
-                              markerfacecolor=v, markersize=15, alpha=0.6) for k, v in custom_palette.items()]
-    ax.legend(handles=legend_elements, title='Categorización Social', title_fontsize='13', 
-              fontsize='11', loc='upper right', frameon=True, shadow=True)
+    # Leyenda mejorada
+    leg = ax.legend(title='Categorización Social', title_fontsize='16', 
+                    fontsize='13', loc='upper right', frameon=True, shadow=True, borderpad=1)
+    leg.get_frame().set_alpha(0.9)
 
     # 4. Guardado
     output_dir = 'figures'
@@ -101,10 +121,11 @@ def generate_pro_map():
     plt.savefig(output_path, bbox_inches='tight', facecolor='white')
     plt.close()
     
-    print(f"✅ ¡Éxito! Mapa con BARRIOS y FONDO REAL generado en: {output_path}")
+    print(f"✅ ¡Éxito! Nueva versión estética generada en: {output_path}")
 
 if __name__ == "__main__":
     generate_pro_map()
+
 
 
 
