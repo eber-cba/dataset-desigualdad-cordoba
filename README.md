@@ -1,72 +1,85 @@
-# Identificación de tipologías urbanas en Córdoba mediante datos abiertos y clustering
+# 🏙️ Identificación de tipologías urbanas en Córdoba mediante datos abiertos y clustering
 
 <p align="center">
-  <img src="figures/mapa_clusters.png" alt="Mapa de Clusters Córdoba" width="700"/>
+  <img src="figures/mapa_clusters_pro.png" alt="Mapa de Clusters Córdoba Profesional" width="700"/>
+  <br>
+  <i>Mapa estratégico de tipologías urbanas: Segmentación barrial basada en infraestructura y vulnerabilidad social.</i>
 </p>
-
-## 🌐 Dashboard Interactivo (Live Demo)
-
-> [!TIP]
-> **Explora los resultados de forma interactiva:**
-> ### 🔗 [https://dashboard-desigualdad-cordoba.vercel.app](https://dashboard-desigualdad-cordoba.vercel.app)
-> *Navega directamente sobre el mapa de la ciudad para visualizar los clústeres y equipamiento urbano.*
 
 ---
 
-## Descripción del problema
+## 🌐 Dashboard Interactivo (Live Demo)
 
-El crecimiento de las ciudades muchas veces ocurre de manera desigual, generando zonas con profundas carencias estructurales que conviven con otras de alta consolidación urbana. Este proyecto fue diseñado como un **caso de estudio pedagógico** para explorar la medición y clasificación de la desigualdad territorial en la ciudad de Córdoba Capital (Argentina) utilizando herramientas de Ciencia de Datos.
+> [!IMPORTANT]
+> **Explora los resultados de forma interactiva y en tiempo real:**
+> ### 🔗 [https://dashboard-desigualdad-cordoba.vercel.app](https://dashboard-desigualdad-cordoba.vercel.app)
+> *Navega directamente sobre el mapa de la ciudad para visualizar la huella geoespacial de cada barrio, sus clústeres y el equipamiento urbano detallado.*
 
-A través del cruce de datos estructurales de pobreza histórica (NBI del Censo Nacional) con el despliegue moderno de infraestructura a nivel de servicios públicos (gestión municipal 2023), este material permite a los estudiantes aplicar algoritmos para detectar patrones de segregación y construir perfiles que faciliten la comprensión de la dinámica urbana.
+---
 
-## Preguntas de investigación
+## 📝 Descripción del problema
 
-1. ¿Qué barrios de Córdoba Capital presentan un mayor grado de vulnerabilidad socioeconómica y déficits de infraestructura?
-2. ¿Existe una relación matemática comprobable entre los niveles de pobreza estructural (NBI) y la escasez de acceso a servicios básicos como salud, educación, transporte y seguridad?
-3. ¿Se pueden identificar **tipologías urbanas** (clústeres naturales) que agrupen a los barrios bajo características comunes sin la intervención subjetiva humana?
+El crecimiento de las ciudades suele ser asimétrico, generando zonas con profundas carencias estructurales que conviven con otras de alta consolidación urbana. Este proyecto nace como un **caso de estudio pedagógico y profesional** diseñado para explorar, medir y clasificar la desigualdad territorial en la ciudad de Córdoba Capital (Argentina) utilizando herramientas modernas de Ciencia de Datos.
 
-## Dataset
+A través del cruce de datos estructurales de pobreza histórica (NBI del Censo Nacional) con el despliegue moderno de infraestructura de servicios públicos (gestión municipal), este repositorio permite aplicar algoritmos de Machine Learning para detectar patrones de segregación y construir perfiles urbanos que faciliten la toma de decisiones basada en evidencia.
 
-La investigación se sustenta en un ecosistema de datos cruzados obtenidos a partir del cruce espacial de archivos GIS y bases tabulares:
-* **Unidad de análisis:** Los barrios de la ciudad de Córdoba Capital.
-* **Cantidad:** **495 unidades territoriales**. Esta cifra corresponde a la cartografía oficial utilizada para este estudio, garantizando consistencia espacial en el análisis (aunque pueden existir variaciones menores según la fuente cartográfica utilizada).
-* **Variables incluidas:** 
+## ❓ Preguntas de investigación
+
+1. ¿Qué barrios de Córdoba Capital presentan el mayor grado de vulnerabilidad socioeconómica y déficit de infraestructura?
+2. ¿Existe una relación matemática clara entre los niveles de pobreza estructural (NBI) y la escasez de acceso a servicios como salud, educación y transporte?
+3. ¿Es posible identificar **tipologías urbanas** (clústeres naturales) que agrupen a los barrios de forma objetiva sin intervención subjetiva humana?
+
+## 📊 Dataset
+
+La investigación se sustenta en un ecosistema de datos consolidado a partir de fuentes GIS y bases tabulares oficiales:
+* **Unidad de análisis:** Barrios de la ciudad de Córdoba Capital.
+* **Cantidad:** **495 unidades territoriales**. Esta cifra representa el nomenclador consolidado para este estudio, garantizando consistencia espacial (aunque puede variar levemente según la fuente cartográfica).
+* **Variables clave:** 
   * Necesidades Básicas Insatisfechas (% NBI)
   * Infraestructura Educativa (Escuelas provinciales y municipales)
   * Transporte Público (Paradas y recorridos de colectivos)
-  * Salud y Seguridad (Dispensarios, comisarías, luminaria pública)
-  * Centros Vecinales (Tejido social e infraestructura ciudadana comunitaria)
+  * Salud y Seguridad (Centros de salud, comisarías, luminaria pública)
+  * Tejido Social (Centros vecinales e infraestructura comunitaria)
 
-## Fuentes de Datos
+## 🚀 Mejoras recientes
 
-Este proyecto consolida información proveniente de los portales de datos abiertos de los tres niveles del estado y organismos especializados:
+Como parte del proceso de mejora continua del proyecto, se han incorporado las siguientes actualizaciones:
+* **Validación Estadística:** Implementación del *Silhouette Score* para evaluar la cohesión de los grupos, asegurando que la separación entre barrios similares y diferentes sea estadísticamente sólida.
+* **Optimización Visual:** Refinamiento estético de los mapas y el gráfico de PCA (Análisis de Componentes Principales) para facilitar la interpretación de los clústeres.
+* **Integración Incremental:** Mejoras en el pipeline de datos que permiten actualizaciones modulares sin alterar la lógica de negocio ni la arquitectura original del proyecto.
 
-* **[IDECOR (Infraestructura de Datos Espaciales de Córdoba)](https://www.idecor.gob.ar/)**: Cartografía oficial de barrios, capas GIS de infraestructra y ubicación georeferenciada de escuelas. [Web de Mapas](https://mapas.cordoba.gob.ar/).
-* **[Portal de Gobierno Abierto - Municipalidad de Córdoba](https://gobiernoabierto.cordoba.gob.ar/data/)**: Datos sobre el sistema de transporte (paradas de MoviBus), centros de salud municipales (dispensarios) y ubicación de centros vecinales.
-* **[INDEC (Instituto Nacional de Estadística y Censos)](https://www.indec.gob.ar/)**: Datos demográficos y de pobreza estructural extraídos de los Censos Nacionales de Población, Hogares y Vivienda a nivel de Radio Censal y agreados por barrio.
+## 🗃️ Fuentes de Datos
 
-## Metodología
+Este proyecto consolida información proveniente de portales de datos abiertos de alta transparencia:
 
-El proyecto propone un *pipeline* (flujo de trabajo) reproducible, ideal para el aprendizaje de las distintas etapas de un proyecto de datos:
+* **[IDECOR (Infraestructura de Datos Espaciales de Córdoba)](https://www.idecor.gob.ar/)**: Cartografía oficial de barrios e infraestructura educativa.
+* **[Portal de Gobierno Abierto - Municipalidad de Córdoba](https://gobiernoabierto.cordoba.gob.ar/data/)**: Datos sobre transporte (MoviBus), salud municipal y centros vecinales.
+* **[INDEC (Instituto Nacional de Estadística y Censos)](https://www.indec.gob.ar/)**: Datos demográficos y de pobreza estructural a nivel de radio censal.
 
-1. **Recolección y Limpieza de datos:** Tratamiento de fuentes heterogéneas (GeoJSON y CSV), manejo de valores nulos y estandarización de nomenclaturas.
-2. **Integración Geoespacial:** Uso de *GeoPandas* para asignar equipamiento urbano (escuelas, paradas) a cada polígono de barrio mediante técnicas de proximidad y pertenencia espacial.
-3. **Feature Engineering:** Creación de nuevas métricas (como índices por habitante) para permitir comparaciones equitativas entre barrios de distinto tamaño.
-4. **Normalización:** Proceso de ajustar las escalas de los datos (media 0 y varianza 1) para que variables con rangos muy distintos (ej: población vs \% NBI) tengan el mismo peso en el modelo.
-5. **Clustering no supervisado (K-Means):** Algoritmo que agrupa automáticamente los datos basándose en sus similitudes, sin necesidad de etiquetas previas de "bueno" o "malo".
-6. **Selección de K (Elbow Method o Método del Codo):** Técnica visual para elegir el número óptimo de grupos buscando el punto donde agregar más clusters deja de aportar una mejora significativa en la cohesión interna (inercia).
+## 🛠️ Metodología
+
+El proyecto propone un *pipeline* profesional y reproducible:
+
+1. **Limpieza y Estandarización:** Tratamiento de fuentes heterogéneas, manejo de nulos y normalización de nomenclaturas.
+2. **Integración Geoespacial:** Uso de *GeoPandas* y algoritmos de proximidad (*KD-Tree*) para asignar equipamiento a polígonos barriales.
+3. **Feature Engineering:** Creación de indicadores por densidad poblacional para comparaciones equitativas.
+4. **Normalización:** Ajuste de escalas para que todas las variables tengan el mismo peso relativo en el modelo.
+5. **Clustering (K-Means):** Agrupamiento automático de barrios según similitud multidimensional.
+6. **Optimización de Clusters:** Uso del *Método del Codo* para determinar el balance ideal entre complejidad y precisión.
 
 <p align="center">
   <img src="figures/elbow.png" alt="Método del Codo" width="500"/>
+  <br>
+  <i>Insight: El método del codo nos permite identificar visualmente que K=3 es el punto de equilibrio óptimo para capturar la varianza de la ciudad.</i>
 </p>
 
-## Resultados
+## 📈 Resultados
 
-El modelo K-Means **sugiere** la existencia de 3 perfiles urbanos con características diferenciadas:
+El modelo sugiere la existencia de 3 perfiles urbanos diferenciados:
 
-1. **Núcleo Consolidado (Cluster 0):** Áreas con los más bajos niveles de necesidades estructurales y alta aglomeración de servicios.
-2. **Zona en Transición (Cluster 1):** Sectores periurbanos con niveles medios de NBI y distribución de infraestructura variable.
-3. **Periferia Vulnerable (Cluster 2):** Aglomeraciones de alta criticidad social con déficits acentuados de presencia estatal.
+1. **Núcleo Consolidado (Cluster 0):** Áreas con servicios plenos y mínimos niveles de pobreza estructural.
+2. **Zona en Transición (Cluster 1):** Sectores periurbanos con infraestructura variable y niveles medios de vulnerabilidad.
+3. **Periferia Vulnerable (Cluster 2):** Aglomeraciones con alta criticidad social y déficit acentuado de presencia estatal.
 
 ### Tabla de Perfiles (Promedios)
 | Cluster | % NBI | Escuelas (x1000) | Paradas (x1000) | Score Infra. |
@@ -79,76 +92,70 @@ El modelo K-Means **sugiere** la existencia de 3 perfiles urbanos con caracterí
   <img src="figures/perfil_clusters.png" alt="Perfil Proporcional de Variables" width="700"/>
 </p>
 
-## Visualizaciones
-
-A continuación se exponen resultados visuales extra que refuerzan el entendimiento de la matriz general poblacional para las variables estudiadas.
+## 🖼️ Visualizaciones Analíticas
 
 ### Reducción de Dimensionalidad (PCA)
-El PCA (Análisis de Componentes Principales) es una técnica que permite simplificar muchas variables en solo dos ejes visuales, manteniendo la mayor cantidad de información posible para entender cómo se separan los grupos.
-
 <p align="center">
   <img src="figures/clusters_pca_visualization.png" alt="PCA Tipologías" width="700"/>
+  <br>
+  <i>Insight: Este gráfico demuestra cómo los barrios se separan claramente en tres grupos según su perfil socio-urbano, validando la lógica del clustering.</i>
 </p>
 
-### Mapa de Calor - Correlaciones Cruzadas
-
+### Mapa de Calor - Correlaciones
 <p align="center">
   <img src="figures/heatmap_correlacion.png" alt="Correlación" width="700"/>
+  <br>
+  <i>Insight: Revela la relación directa entre el acceso a transporte y educación con el nivel de vulnerabilidad de los barrios.</i>
 </p>
 
-### Sectores Críticos (Vulnerabilidad Extrema)
-
+### Sectores de Alta Criticidad
 <p align="center">
   <img src="figures/ranking_vulnerables.png" alt="Top 10 Vulnerable" width="700"/>
+  <br>
+  <i>Insight: Identificación prioritaria de las zonas que requieren intervención urgente en obra pública y servicios sociales.</i>
 </p>
 
-Este análisis exploratorio permite identificar patrones de interés para profundizar en investigaciones urbanas:
-* Los resultados **indican posibles patrones** de conformación Centro-Periferia, donde la accesibilidad a servicios parece disminuir hacia los bordes de la mancha urbana.
-* Se observa una **tendencia de correlación** (Heatmap) entre el \% de NBI y la densidad de infraestructura, lo que invita a reflexionar sobre cómo el entorno construido impacta en la calidad de vida.
-* El caso de estudio **permite explorar** cómo la ciencia de datos puede complementar el diseño de políticas públicas mediante el diagnóstico territorial basado en evidencia.
+## ⚠️ Limitaciones del análisis
 
-## Limitaciones del análisis
-Es importante reconocer las limitaciones de este ejercicio pedagógico:
-* **Temporalidad:** Los datos provienen de distintas fuentes y años (Censo vs. Catastro municipal), lo que puede generar desfasajes en la realidad actual.
-* **Correlación vs. Causalidad:** Los hallazgos sugieren asociaciones espaciales pero no prueban que la falta de un servicio sea la causa única de la pobreza.
-* **Modelo Simplicado:** El algoritmo K-Means asume grupos de forma esférica y similar tamaño, lo que podría simplificar excesivamente la complejidad real de los barrios.
-* **Construcción de variables:** Los índices son aproximaciones construidas por los autores y pueden ser cuestionados o mejorados.
+* **Temporalidad:** Cruce de datos de distintas fechas (Censo vs. Catastro contemporáneo).
+* **Correlación no es Causalidad:** El modelo muestra asociaciones, no necesariamente causas únicas.
+* **Modelo Simplificado:** K-Means asume formas de clústeres ideales que pueden simplificar la realidad urbana compleja.
 
-## Trabajo para estudiantes
-Este repositorio no es una solución definitiva, sino un punto de partida para el debate:
-1. **Validación:** ¿Son coherentes estos clusters con tu conocimiento de la ciudad?
-2. **Alternativas:** ¿Qué pasaría si se usaran otros algoritmos como DBSCAN o Clustering Jerárquico?
-3. **Nuevos ejes:** ¿Qué otra variable (ej: espacios verdes, criminalidad) agregaría mayor valor al modelo?
-4. **Crítica:** Los resultados son sensibles a la normalización elegida. ¿Cómo cambiarían con otro escalador?
+## 📈 Posibles mejoras
 
-## Estructura del repositorio
+* **Visualización Choropleth:** Implementar mapas de polígonos interactivos para una lectura geográfica más precisa.
+* **Nuevas Variables:** Integrar datos de ingresos promedio por hogar y frecuencias de transporte en tiempo real.
+* **Arquitectura Full-Stack:** Integración total del pipeline con el frontend en React para un dashboard dinámico.
+
+## 📂 Estructura del repositorio
 
 ```text
 dataset-desigualdad-cordoba/
 ├── data/
-│   ├── raw/                  # Datasets crudos extraídos originalmente de diversas fuentes
-│   └── processed/            # Datasets transformados y unificados listos para IA & EDA
+│   ├── raw/                  # Datasets crudos originales
+│   └── processed/            # Datasets transformados listos para análisis
 ├── notebooks/                
-│   ├── 01_limpieza.ipynb     # Proceso de depuración, limpieza de nulos y estandarización
-│   ├── 02_analisis.ipynb     # Análisis descriptivo exploratorio visual sobre la población
-│   └── 03_modelado.ipynb     # Entrenamiento de algoritmos no supervisados y Machine Learning
-├── scripts/                  # Código Python reproducible y encapsulado en módulos
-├── figures/                  # Imágenes, plots y salidas geográficas definitivas de reportes
-├── requirements.txt          # Dependencias y bibliotecas vitales del entorno Python
-└── README.md                 # Informe y documentación del proyecto
+│   ├── 01_limpieza.ipynb     # Depuración y limpieza de datos
+│   ├── 02_analisis.ipynb     # Análisis descriptivo visual
+│   └── 03_modelado.ipynb     # Entrenamiento de algoritmos de ML
+├── scripts/                  # Código Python modular y reproducible
+├── figures/                  # Gráficos y salidas definitivas
+├── requirements.txt          # Dependencias del entorno
+└── README.md                 # Documentación principal
 ```
 
-## Cómo ejecutar
+## ⚙️ Cómo ejecutar
 
-1. Realiza el clone del repositorio a tu disco duro local:
-```bash
-git clone https://github.com/eber-cba/dataset-desigualdad-cordoba.git
-```
-2. Instala las dependencias estipuladas dentro del entorno virtual usando `pip`:
-```bash
-pip install -r requirements.txt
-```
-3. Navega hacia el directorio de análisis y comienza ejecutar utilizando Jupyter o tu IDE predeterminado:
-```bash
-jupyter notebook notebooks/01_limpieza.ipynb
-```
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/eber-cba/dataset-desigualdad-cordoba.git
+   ```
+2. **Instalar dependencias:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Ejecutar el pipeline:**
+   Puedes abrir los Notebooks en la carpeta `/notebooks` o ejecutar los scripts integradores en `/scripts` para regenerar el dataset final.
+
+---
+**Desarrollado con compromiso por la Ciencia de Datos orientada al impacto social.**
