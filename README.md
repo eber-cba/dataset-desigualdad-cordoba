@@ -6,9 +6,9 @@
 
 ## Descripción del problema
 
-El crecimiento de las ciudades muchas veces ocurre de manera desigual, generando zonas con profundas carencias estructurales que conviven con otras de alta consolidación urbana. Este proyecto busca **resolver el problema de la medición y clasificación de la desigualdad territorial** en la ciudad de Córdoba Capital (Argentina). 
+El crecimiento de las ciudades muchas veces ocurre de manera desigual, generando zonas con profundas carencias estructurales que conviven con otras de alta consolidación urbana. Este proyecto fue diseñado como un **caso de estudio pedagógico** para explorar la medición y clasificación de la desigualdad territorial en la ciudad de Córdoba Capital (Argentina) utilizando herramientas de Ciencia de Datos.
 
-Las políticas públicas y la planificación urbana requieren herramientas precisas que no dependan únicamente de la intuición o la experiencia empírica. Cruzando datos estructurales de pobreza histórica (NBI del Censo Nacional) con el despliegue moderno de infraestructura a nivel de servicios públicos (gestión municipal 2023), esta investigación aplica algoritmos de clustering para detectar patrones ocultos de segregación, creando perfiles que puedan guiar la toma de decisiones basada en *Data Science*.
+A través del cruce de datos estructurales de pobreza histórica (NBI del Censo Nacional) con el despliegue moderno de infraestructura a nivel de servicios públicos (gestión municipal 2023), este material permite a los estudiantes aplicar algoritmos para detectar patrones de segregación y construir perfiles que faciliten la comprensión de la dinámica urbana.
 
 ## Preguntas de investigación
 
@@ -19,8 +19,8 @@ Las políticas públicas y la planificación urbana requieren herramientas preci
 ## Dataset
 
 La investigación se sustenta en un ecosistema de datos cruzados obtenidos a partir del cruce espacial de archivos GIS y bases tabulares:
-* **Unidad de análisis:** Los barrios oficiales de la ciudad de Córdoba Capital.
-* **Cantidad:** **495 barrios** seleccionados. Esta suma cubre el total oficial garantizando rigor estadístico.
+* **Unidad de análisis:** Los barrios de la ciudad de Córdoba Capital.
+* **Cantidad:** **495 unidades territoriales**. Esta cifra corresponde a la cartografía oficial utilizada para este estudio, garantizando consistencia espacial en el análisis (aunque pueden existir variaciones menores según la fuente cartográfica utilizada).
 * **Variables incluidas:** 
   * Necesidades Básicas Insatisfechas (% NBI)
   * Infraestructura Educativa (Escuelas provinciales y municipales)
@@ -30,14 +30,14 @@ La investigación se sustenta en un ecosistema de datos cruzados obtenidos a par
 
 ## Metodología
 
-El proyecto fue concebido bajo un *pipeline* integral de Data Science, asegurando la reproducibilidad de todos sus pasos:
+El proyecto propone un *pipeline* (flujo de trabajo) reproducible, ideal para el aprendizaje de las distintas etapas de un proyecto de datos:
 
-1. **Recolección y Limpieza de datos:** Se procesaron múltiples fuentes (GeoJSON, archivos CSV históricos) lidando con valores nulos, georeferencias erróneas y unificación de nombres de barrios topográficamente irregulares.
-2. **Integración Geoespacial:** Se utilizó *GeoPandas* para el cálculo de distancias (K-Nearest Neighbors espaciales) e intersecciones (Points in Polygon) asignando escuelas y paradas de colectivos al dominio de un barrio.
-3. **Feature Engineering:** Se crearon métricas relativas que permitieran comparaciones justas, tales como *“Luminarias por cada 1000 habitantes”* o *“Índices de Cobertura Educativa”*. Se construyó un **Score de Infraestructura**.
-4. **Normalización:** Las variables fueron estandarizadas asumiendo media 0 y varianza 1 mediante `StandardScaler()` para impedir que las de mayor rango dimensional dominaran sobre el resto.
-5. **Clustering Predictivo (K-Means):** Se entrenó un modelo de particionamiento supervisado para la creación de divisiones latentes de la ciudad.
-6. **Selección de K (Elbow Method):** Para evitar el sesgo en el agrupamiento, se usó el *Método del Codo*, justificando matemáticamente la división de Córdoba en 3 tipologías principales de acuerdo a la estabilización de su inercia.
+1. **Recolección y Limpieza de datos:** Tratamiento de fuentes heterogéneas (GeoJSON y CSV), manejo de valores nulos y estandarización de nomenclaturas.
+2. **Integración Geoespacial:** Uso de *GeoPandas* para asignar equipamiento urbano (escuelas, paradas) a cada polígono de barrio mediante técnicas de proximidad y pertenencia espacial.
+3. **Feature Engineering:** Creación de nuevas métricas (como índices por habitante) para permitir comparaciones equitativas entre barrios de distinto tamaño.
+4. **Normalización:** Proceso de ajustar las escalas de los datos (media 0 y varianza 1) para que variables con rangos muy distintos (ej: población vs \% NBI) tengan el mismo peso en el modelo.
+5. **Clustering no supervisado (K-Means):** Algoritmo que agrupa automáticamente los datos basándose en sus similitudes, sin necesidad de etiquetas previas de "bueno" o "malo".
+6. **Selección de K (Elbow Method o Método del Codo):** Técnica visual para elegir el número óptimo de grupos buscando el punto donde agregar más clusters deja de aportar una mejora significativa en la cohesión interna (inercia).
 
 <p align="center">
   <img src="figures/elbow.png" alt="Método del Codo" width="500"/>
@@ -45,11 +45,18 @@ El proyecto fue concebido bajo un *pipeline* integral de Data Science, asegurand
 
 ## Resultados
 
-El modelo K-Means identificó y etiquetó de manera no supervisada la estructura latente de Córdoba Capital, exponiendo 3 perfiles urbanos definidos:
+El modelo K-Means **sugiere** la existencia de 3 perfiles urbanos con características diferenciadas:
 
-1. **Núcleo Consolidado (Cluster 0):** Áreas (usualmente el centroide, zonas norte y barrios residenciales históricos) con los más bajos niveles de necesidades estructurales y una altísima aglomeración de servicios públicos, transporte fluido y presencia estatal.
-2. **Zona en Transición (Cluster 1):** Un anillo periurbano o de segunda corona, donde se observan contrastes. La infraestructura comienza a disminuir de manera gradual, mostrando niveles medios de NBI y una distribución desigual en educación o luminaria. 
-3. **Periferia Vulnerable (Cluster 2):** Aglomeraciones de alta criticidad social. Son sectores que quedaron profundamente aislados de la densificación estatal. Tienen un déficit acentuado de escuelas base, ausencia notoria de comisarías/dispensarios municipales, y los números más alarmantes de pobreza estructural de la Capital.
+1. **Núcleo Consolidado (Cluster 0):** Áreas con los más bajos niveles de necesidades estructurales y alta aglomeración de servicios.
+2. **Zona en Transición (Cluster 1):** Sectores periurbanos con niveles medios de NBI y distribución de infraestructura variable.
+3. **Periferia Vulnerable (Cluster 2):** Aglomeraciones de alta criticidad social con déficits acentuados de presencia estatal.
+
+### Tabla de Perfiles (Promedios)
+| Cluster | % NBI | Escuelas (x1000) | Paradas (x1000) | Score Infra. |
+|:---|---:|---:|---:|---:|
+| Núcleo Consolidado | 2.83 | 0.58 | 5.06 | 0.15 |
+| Zona en Transición | 3.90 | 2.68 | 15.96 | 0.54 |
+| Periferia Vulnerable | 14.14 | 0.81 | 3.40 | 0.17 |
 
 <p align="center">
   <img src="figures/perfil_clusters.png" alt="Perfil Proporcional de Variables" width="700"/>
@@ -59,7 +66,8 @@ El modelo K-Means identificó y etiquetó de manera no supervisada la estructura
 
 A continuación se exponen resultados visuales extra que refuerzan el entendimiento de la matriz general poblacional para las variables estudiadas.
 
-### Reducción de Dimensionalidad y Fronteras (PCA)
+### Reducción de Dimensionalidad (PCA)
+El PCA (Análisis de Componentes Principales) es una técnica que permite simplificar muchas variables en solo dos ejes visuales, manteniendo la mayor cantidad de información posible para entender cómo se separan los grupos.
 
 <p align="center">
   <img src="figures/clusters_pca_visualization.png" alt="PCA Tipologías" width="700"/>
@@ -77,12 +85,24 @@ A continuación se exponen resultados visuales extra que refuerzan el entendimie
   <img src="figures/ranking_vulnerables.png" alt="Top 10 Vulnerable" width="700"/>
 </p>
 
-## Conclusiones
+Este análisis exploratorio permite identificar patrones de interés para profundizar en investigaciones urbanas:
+* Los resultados **indican posibles patrones** de conformación Centro-Periferia, donde la accesibilidad a servicios parece disminuir hacia los bordes de la mancha urbana.
+* Se observa una **tendencia de correlación** (Heatmap) entre el \% de NBI y la densidad de infraestructura, lo que invita a reflexionar sobre cómo el entorno construido impacta en la calidad de vida.
+* El caso de estudio **permite explorar** cómo la ciencia de datos puede complementar el diseño de políticas públicas mediante el diagnóstico territorial basado en evidencia.
 
-Este análisis de *Urban Data Science* permite llegar a múltiples insights determinantes:
-* La hipótesis de desigualdad territorial en Córdoba se verifica matemáticamente como un modelo de conformación **Centro-Periferia**. Los servicios no logran capilaridad en los bordes de la mancha urbana.
-* Existe una fuerte correlación negativa estadísticamente comprobada (Heatmap) entre el \% de NBI y las métricas de infraestructura o densidad del transporte público. "La pobreza habita allí donde la accesibilidad del transporte público falla".
-* El modelo permite a las comunas observar con precisión qué barrios necesitan un presupuesto inmediato, sustituyendo la asignación al azar por una enfocada al cierre real y predictivo de la brecha territorial.
+## Limitaciones del análisis
+Es importante reconocer las limitaciones de este ejercicio pedagógico:
+* **Temporalidad:** Los datos provienen de distintas fuentes y años (Censo vs. Catastro municipal), lo que puede generar desfasajes en la realidad actual.
+* **Correlación vs. Causalidad:** Los hallazgos sugieren asociaciones espaciales pero no prueban que la falta de un servicio sea la causa única de la pobreza.
+* **Modelo Simplicado:** El algoritmo K-Means asume grupos de forma esférica y similar tamaño, lo que podría simplificar excesivamente la complejidad real de los barrios.
+* **Construcción de variables:** Los índices son aproximaciones construidas por los autores y pueden ser cuestionados o mejorados.
+
+## Trabajo para estudiantes
+Este repositorio no es una solución definitiva, sino un punto de partida para el debate:
+1. **Validación:** ¿Son coherentes estos clusters con tu conocimiento de la ciudad?
+2. **Alternativas:** ¿Qué pasaría si se usaran otros algoritmos como DBSCAN o Clustering Jerárquico?
+3. **Nuevos ejes:** ¿Qué otra variable (ej: espacios verdes, criminalidad) agregaría mayor valor al modelo?
+4. **Crítica:** Los resultados son sensibles a la normalización elegida. ¿Cómo cambiarían con otro escalador?
 
 ## Estructura del repositorio
 
