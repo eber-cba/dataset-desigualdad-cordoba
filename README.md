@@ -28,6 +28,14 @@ La investigación se sustenta en un ecosistema de datos cruzados obtenidos a par
   * Salud y Seguridad (Dispensarios, comisarías, luminaria pública)
   * Centros Vecinales (Tejido social e infraestructura ciudadana comunitaria)
 
+## Fuentes de Datos
+
+Este proyecto consolida información proveniente de los portales de datos abiertos de los tres niveles del estado y organismos especializados:
+
+* **[IDECOR (Infraestructura de Datos Espaciales de Córdoba)](https://www.idecor.gob.ar/)**: Cartografía oficial de barrios, capas GIS de infraestructra y ubicación georeferenciada de escuelas. [Web de Mapas](https://mapas.cordoba.gob.ar/).
+* **[Portal de Gobierno Abierto - Municipalidad de Córdoba](https://gobiernoabierto.cordoba.gob.ar/data/)**: Datos sobre el sistema de transporte (paradas de MoviBus), centros de salud municipales (dispensarios) y ubicación de centros vecinales.
+* **[INDEC (Instituto Nacional de Estadística y Censos)](https://www.indec.gob.ar/)**: Datos demográficos y de pobreza estructural extraídos de los Censos Nacionales de Población, Hogares y Vivienda a nivel de Radio Censal y agreados por barrio.
+
 ## Metodología
 
 El proyecto propone un *pipeline* (flujo de trabajo) reproducible, ideal para el aprendizaje de las distintas etapas de un proyecto de datos:
