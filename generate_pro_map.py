@@ -1,8 +1,8 @@
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import contextily as cx
 import os
-import seaborn as sns
 
 def generate_pro_map():
     # 1. Carga de datos
@@ -13,10 +13,24 @@ def generate_pro_map():
         print("Error: No se encuentran los archivos de datos (CSV o GeoJSON).")
         return
 
-    # Cargar datos tabulares y geográficos
+    # Cargar datos
     df = pd.read_csv(file_path)
     gdf = gpd.read_file(geojson_path)
     
+    # Asegurar que el GeoDataFrame tenga un CRS (sistema de coordenadas)
+    if gdf.crs is None:
+        gdf.set_crs(epsg=4326, inplace=True) # WGS84 (Lat/Lon)
+
+    # Convertir a Web Mercator (EPSG:3857) que es el formato que usan los mapas base como OSM
+    gdf_web = gdf.to_crs(epsg=3857)
+    
+    # Crear un DataFrame con coordenadas de puntos convertidas a Web Mercator
+    points_gdf = gpd.GeoDataFrame(
+        df, 
+        geometry=gpd.points_from_xy(df.centroide_lon, df.centroide_lat),
+        crs="EPSG:4326"
+    ).to_crs(epsg=3857)
+
     # Mapeo de clusters
     cluster_mapping = {
         'Núcleo Urbano Consolidado': 'Cluster 0: Núcleo consolidado',
@@ -24,74 +38,66 @@ def generate_pro_map():
         'Suburbio Popular Consolidado': 'Cluster 1: Zona en transición',
         'Periferia Vulnerable': 'Cluster 2: Periferia vulnerable'
     }
-    df['cluster_tag'] = df['cluster_descripcion'].map(cluster_mapping)
+    points_gdf['cluster_tag'] = points_gdf['cluster_descripcion'].map(cluster_mapping)
     
     # Colores profesionales
     custom_palette = {
-        'Cluster 0: Núcleo consolidado': '#2ecc71', # Verde esmeralda
-        'Cluster 1: Zona en transición': '#f1c40f', # Amarillo girasol
-        'Cluster 2: Periferia vulnerable': '#e74c3c' # Rojo alizarina
+        'Cluster 0: Núcleo consolidado': '#2ecc71', # Verde
+        'Cluster 1: Zona en transición': '#f1c40f', # Amarillo
+        'Cluster 2: Periferia vulnerable': '#e74c3c' # Rojo
     }
 
     # 2. Configuración de la figura
-    plt.style.use('seaborn-v0_8-whitegrid')
     fig, ax = plt.subplots(figsize=(15, 15), dpi=150)
     
-    # --- CAPA 1: FONDO DE BARRIOS ---
-    # Dibujamos todos los barrios en un gris muy suave para dar contexto geográfico
-    gdf.plot(ax=ax, color='#f2f2f2', edgecolor='#d1d1d1', linewidth=0.5, alpha=0.8)
+    # --- CAPA 1: MAPA BASE (OpenStreetMap) ---
+    print("Agregando mapa base...")
+    # Dibujamos primero los límites de los barrios con transparencia para definir el área
+    gdf_web.plot(ax=ax, alpha=0.1, edgecolor='black', linewidth=0.5)
+    
+    # Agregar el mapa base real debajo
+    cx.add_basemap(ax, source=cx.providers.OpenStreetMap.Mapnik, zoom=13)
     
     # --- CAPA 2: PUNTOS DE CLUSTERS ---
-    # Dibujamos los puntos (centroides) sobre el mapa de fondo
+    print("Graficando puntos...")
     for cluster, color in custom_palette.items():
-        subset = df[df['cluster_tag'] == cluster]
+        subset = points_gdf[points_gdf['cluster_tag'] == cluster]
         ax.scatter(
-            subset['centroide_lon'], 
-            subset['centroide_lat'], 
+            subset.geometry.x, 
+            subset.geometry.y, 
             c=color, 
             label=cluster, 
-            s=100, 
-            alpha=0.9, 
-            edgecolors='white', 
-            linewidth=0.8,
-            zorder=3
+            s=80, 
+            alpha=0.8, 
+            edgecolors='black', 
+            linewidth=0.5,
+            zorder=5
         )
 
     # 3. Estética y Diseño
     ax.set_title('Segmentación Socioeconómica - Córdoba Capital', 
-                 fontsize=24, pad=30, fontweight='bold', color='#1a252f', family='sans-serif')
+                 fontsize=22, pad=20, fontweight='bold', color='#2c3e50')
     
-    # Eliminamos ejes para que parezca un mapa limpio
+    # Ocultar ejes pero mantener el marco
     ax.set_axis_off()
-    
-    # Añadimos una anotación de fuente o contexto
-    plt.text(0.99, 0.01, 'Fuente: Datos Abiertos Municipalidad de Cba / INDEC', 
-             transform=ax.transAxes, ha='right', fontsize=10, color='#7f8c8d')
 
     # Leyenda elegante
-    leg = ax.legend(title='Tipologías Urbanas', title_fontsize='15', fontsize='12', 
-                    loc='upper right', frameon=True, shadow=True, borderpad=1)
-    leg.get_frame().set_edgecolor('#bdc3c7')
+    ax.legend(title='Tipologías Urbanas', title_fontsize='13', fontsize='11', 
+              loc='upper right', frameon=True, shadow=True)
 
-    # 4. Guardado y Limpieza
+    # 4. Guardado
     output_dir = 'figures'
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, 'mapa_clusters_pro.png')
     
-    # Guardar con fondo blanco sólido
-    plt.savefig(output_path, bbox_inches='tight', facecolor='white', edgecolor='none')
+    plt.savefig(output_path, bbox_inches='tight', facecolor='white')
     plt.close()
     
-    # Eliminar el archivo HTML si existe (pedido del usuario)
-    html_file = os.path.join(output_dir, 'mapa_clusters_pro.html')
-    if os.path.exists(html_file):
-        os.remove(html_file)
-        print(f"🗑️ Archivo HTML eliminado: {html_file}")
-
-    print(f"✅ ¡Éxito! Mapa estático generado con fondo cartográfico en: {output_path}")
+    print(f"✅ ¡Éxito! Imagen con MAPA REAL generada en: {output_path}")
 
 if __name__ == "__main__":
     generate_pro_map()
+
 
 
 
