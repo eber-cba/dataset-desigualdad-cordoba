@@ -1,13 +1,9 @@
 # 🏙️ Identificación de tipologías urbanas en Córdoba mediante datos abiertos y clustering
 
 <p align="center">
-  <a href="figures/mapa_clusters_pro.html">
-    <img src="figures/mapa_clusters_pro.png" alt="Mapa de Clusters Córdoba Profesional" width="700"/>
-  </a>
+  <img src="figures/mapa_clusters_pro.png" alt="Mapa de Clusters Córdoba Profesional" width="700"/>
   <br>
-  <i>Mapa estratégico de tipologías urbanas: Segmentación barrial basada en infraestructura y vulnerabilidad social.</i>
-  <br>
-  <b>[ 🗺️ CLIC AQUÍ PARA ABRIR EL MAPA INTERACTIVO ](figures/mapa_clusters_pro.html)</b>
+  <i>Mapa estratégico de tipologías urbanas: Segmentación barrial resaltando la distribución geográfica sobre el mapa de la ciudad.</i>
 </p>
 
 ---
